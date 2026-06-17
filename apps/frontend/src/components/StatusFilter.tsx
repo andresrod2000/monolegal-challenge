@@ -6,18 +6,21 @@ interface StatusFilterBarProps {
   onChange: (status: StatusFilter) => void;
 }
 
+const chipBase =
+  'rounded-sm border px-3 py-1.5 text-sm transition-colors';
+
+const chipActive = 'border-brand-dark bg-brand-dark text-white';
+const chipInactive =
+  'border-brand-neutral bg-surface text-brand-muted hover:border-brand-medium hover:text-brand-dark';
+
 export function StatusFilterBar({ value, onChange }: StatusFilterBarProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-slate-400">Filtrar:</span>
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="text-sm text-brand-muted">Filtrar:</span>
       <button
         type="button"
         onClick={() => onChange('all')}
-        className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-          value === 'all'
-            ? 'bg-indigo-600 text-white'
-            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-        }`}
+        className={`${chipBase} ${value === 'all' ? chipActive : chipInactive}`}
       >
         Todos
       </button>
@@ -26,11 +29,7 @@ export function StatusFilterBar({ value, onChange }: StatusFilterBarProps) {
           key={status}
           type="button"
           onClick={() => onChange(status)}
-          className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-            value === status
-              ? 'bg-indigo-600 text-white'
-              : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-          }`}
+          className={`${chipBase} ${value === status ? chipActive : chipInactive}`}
         >
           {getInvoiceStatusLabel(status)}
         </button>

@@ -2,6 +2,68 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-body {
-  @apply bg-slate-950 text-slate-100 antialiased;
+:root {
+  --brand-dark: #282d19;
+  --brand-light: #b5cc75;
+  --brand-medium: #6c7a4b;
+  --brand-accent: #87a537;
+  --brand-muted: #5c5c4d;
+  --brand-neutral: #898c84;
+  --surface: #ffffff;
+  --surface-cream: #fafaf7;
+  --surface-subtle: #f4f5f0;
+}
+
+@layer base {
+  body {
+    @apply bg-surface-cream font-sans text-brand-dark antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-serif text-brand-dark;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply rounded-sm bg-brand-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-medium disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply rounded-sm border border-brand-medium bg-surface px-4 py-2 text-sm font-medium text-brand-dark transition-colors hover:bg-surface-subtle disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-ghost {
+    @apply rounded-sm border border-brand-neutral bg-transparent px-4 py-2 text-sm font-medium text-brand-muted transition-colors hover:border-brand-medium hover:text-brand-dark disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm {
+    @apply rounded-sm px-3 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm-ghost {
+    @apply btn-sm border border-brand-neutral text-brand-medium hover:border-brand-medium hover:text-brand-dark;
+  }
+
+  .input-field {
+    @apply w-full rounded-sm border border-brand-neutral bg-surface px-3 py-2 text-brand-dark transition-colors placeholder:text-brand-neutral focus:border-brand-medium focus:outline-none;
+  }
+
+  .panel {
+    @apply border border-brand-neutral bg-surface;
+  }
+
+  .alert-error {
+    @apply rounded-sm border border-brand-muted/40 bg-surface-subtle px-4 py-3 text-sm text-brand-dark;
+  }
+
+  .alert-success {
+    @apply rounded-sm border border-brand-accent/40 bg-brand-light/20 px-4 py-3 text-sm text-brand-dark;
+  }
+
+  .form-label {
+    @apply mb-1 block text-sm font-medium text-brand-muted;
+  }
 }

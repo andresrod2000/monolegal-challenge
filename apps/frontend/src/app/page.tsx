@@ -143,32 +143,32 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <header className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <main className="min-h-screen bg-surface-cream">
+      <div className="mx-auto max-w-7xl px-6 py-12 lg:px-12 lg:py-16">
+        <header className="mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-wider text-indigo-400">
+            <p className="text-xs font-medium uppercase tracking-widest text-brand-medium">
               Monolegal
             </p>
-            <h1 className="mt-1 text-3xl font-bold text-white sm:text-4xl">
+            <h1 className="mt-2 font-serif text-4xl text-brand-dark lg:text-5xl">
               Gestión de Facturación
             </h1>
-            <p className="mt-2 text-slate-400">
+            <p className="mt-3 text-brand-muted">
               Clientes, facturas y recordatorios de cobro
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <button
               type="button"
               onClick={() => setShowCreateClient(true)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800"
+              className="btn-ghost"
             >
               + Nuevo cliente
             </button>
             <button
               type="button"
               onClick={() => setShowCreateInvoice(true)}
-              className="rounded-lg border border-indigo-500/50 px-4 py-2 text-sm font-medium text-indigo-300 transition-colors hover:bg-indigo-950"
+              className="btn-secondary"
             >
               + Nueva factura
             </button>
@@ -176,7 +176,7 @@ export default function DashboardPage() {
               type="button"
               onClick={() => handleProcessReminders()}
               disabled={remindersLoading || processingInvoiceId !== null}
-              className="rounded-lg border border-amber-500/50 px-4 py-2 text-sm font-medium text-amber-300 transition-colors hover:bg-amber-950 disabled:opacity-50"
+              className="btn-ghost"
             >
               {remindersLoading ? 'Procesando…' : 'Ejecutar recordatorios'}
             </button>
@@ -184,21 +184,21 @@ export default function DashboardPage() {
               type="button"
               onClick={() => handleRefresh()}
               disabled={loading}
-              className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-50"
+              className="btn-primary"
             >
               {loading ? 'Actualizando…' : 'Actualizar'}
             </button>
           </div>
         </header>
 
-        <nav className="mb-8 flex gap-2">
+        <nav className="mb-10 flex gap-8 border-b border-brand-neutral">
           <button
             type="button"
             onClick={() => setTab('invoices')}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${
               tab === 'invoices'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-white'
+                ? 'border-brand-dark text-brand-dark'
+                : 'border-transparent text-brand-muted hover:text-brand-dark'
             }`}
           >
             Facturas
@@ -206,10 +206,10 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => setTab('clients')}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+            className={`border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${
               tab === 'clients'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-slate-800 text-slate-400 hover:text-white'
+                ? 'border-brand-dark text-brand-dark'
+                : 'border-transparent text-brand-muted hover:text-brand-dark'
             }`}
           >
             Clientes
@@ -217,19 +217,19 @@ export default function DashboardPage() {
         </nav>
 
         {error && (
-          <div className="mb-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-300">
+          <div className="alert-error mb-8">
             {error}
           </div>
         )}
 
         {remindersError && (
-          <div className="mb-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-300">
+          <div className="alert-error mb-8">
             {remindersError}
           </div>
         )}
 
         {remindersResult && (
-          <div className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-300">
+          <div className="alert-success mb-8">
             Recordatorios procesados: {remindersResult.processed} exitosos,{' '}
             {remindersResult.failed} fallidos
           </div>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
 
         {tab === 'invoices' && (
           <>
-            <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <section className="mb-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {ALL_INVOICE_STATUSES.map((status) => (
                 <KpiCard
                   key={status}
@@ -249,7 +249,7 @@ export default function DashboardPage() {
               ))}
             </section>
 
-            <section className="mb-6 flex flex-col gap-3">
+            <section className="mb-8 flex flex-col gap-4">
               <StatusFilterBar value={statusFilter} onChange={setStatusFilter} />
               <InvoiceClientFilter
                 clients={clients}
@@ -260,7 +260,7 @@ export default function DashboardPage() {
 
             <section>
               {invoicesLoading && invoices.length === 0 ? (
-                <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-12 text-center text-slate-400">
+                <div className="panel rounded-none p-16 text-center text-brand-muted">
                   Cargando facturas…
                 </div>
               ) : (
@@ -275,7 +275,7 @@ export default function DashboardPage() {
               )}
             </section>
 
-            <footer className="mt-8 text-center text-sm text-slate-500">
+            <footer className="mt-10 text-center text-sm text-brand-neutral">
               {displayedInvoices.length} de {invoices.length} facturas mostradas
             </footer>
           </>
@@ -284,7 +284,7 @@ export default function DashboardPage() {
         {tab === 'clients' && (
           <section>
             {clientsLoading && clients.length === 0 ? (
-              <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-12 text-center text-slate-400">
+              <div className="panel rounded-none p-16 text-center text-brand-muted">
                 Cargando clientes…
               </div>
             ) : (

@@ -12,17 +12,17 @@ export function Modal({ title, open, onClose, children }: ModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <button
         type="button"
-        className="absolute inset-0 bg-black/60"
+        className="absolute inset-0 bg-brand-dark/40"
         aria-label="Cerrar"
         onClick={onClose}
       />
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+      <div className="relative z-10 w-full max-w-lg rounded-sm border border-brand-medium bg-surface p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="font-serif text-xl text-brand-dark">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-800 hover:text-white"
+            className="rounded-sm px-2 py-1 text-brand-muted transition-colors hover:text-brand-dark"
           >
             ✕
           </button>

@@ -31,45 +31,33 @@ export function EditClientForm({ client, onSubmit, onClose }: EditClientFormProp
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
-          {error}
-        </div>
-      )}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && <div className="alert-error">{error}</div>}
       <div>
-        <label className="mb-1 block text-sm text-slate-400">Nombre</label>
+        <label className="form-label">Nombre</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white"
+          className="input-field"
         />
       </div>
       <div>
-        <label className="mb-1 block text-sm text-slate-400">Email de destino</label>
+        <label className="form-label">Email de destino</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-white"
+          className="input-field"
         />
       </div>
-      <div className="flex justify-end gap-2 pt-2">
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg px-4 py-2 text-sm text-slate-400 hover:text-white"
-        >
+      <div className="flex justify-end gap-3 pt-2">
+        <button type="button" onClick={onClose} className="btn-ghost">
           Cancelar
         </button>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
-        >
+        <button type="submit" disabled={submitting} className="btn-primary">
           {submitting ? 'Guardando…' : 'Guardar'}
         </button>
       </div>
