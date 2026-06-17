@@ -45,10 +45,12 @@ API_PORT=4000
 CORS_ORIGIN=http://localhost:3000
 CRON_SCHEDULE=0 8 * * *
 RUN_ON_START=true
-NEXT_PUBLIC_API_URL=http://localhost:4000
+API_URL=http://localhost:4000
 ```
 
 > Para desarrollo sin enviar correos reales, usar `EMAIL_PROVIDER=mock`.
+>
+> `API_URL` es una variable de **runtime** usada por el proxy del frontend (`/api/invoices`). En Docker/Portainer el valor por defecto es `http://api:4000` (red interna del stack).
 
 ---
 
@@ -153,6 +155,23 @@ docker compose build
 docker stack deploy -c docker-compose.yml monolegal
 ```
 
+#### Despliegue con Portainer
+
+Al crear o editar el stack en Portainer, definir las variables en la sección **Environment variables** (al final del editor). Portainer **no** lee el `.env` de tu máquina local.
+
+```env
+API_URL=http://api:4000
+EMAIL_PROVIDER=gmail
+GMAIL_USER=tu@gmail.com
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+CRON_SCHEDULE=0 8 * * *
+RUN_ON_START=false
+```
+
+`API_URL` se lee en **runtime** por el servicio `frontend` (proxy server-side hacia la API). No requiere rebuild al cambiar la URL; basta con redeployar el servicio frontend.
+
+Si la API está fuera del stack, apunta `API_URL` a la URL accesible desde la red del contenedor frontend.
+
 Verificar servicios:
 ```bash
 docker stack services monolegal
@@ -241,8 +260,10 @@ curl http://api.monolegal.local/health
 
 ### Frontend no carga datos
 
-- Verificar `NEXT_PUBLIC_API_URL` apunta a `http://api.monolegal.local`
-- Verificar CORS: `CORS_ORIGIN=http://monolegal.local`
+- Verificar que el servicio `frontend` tiene `API_URL` configurado (por defecto `http://api:4000` en el stack)
+- Comprobar que el proxy responde: `curl http://monolegal.local/api/invoices` (o la URL pública del frontend)
+- Revisar logs del frontend: `docker service logs monolegal_frontend`
+- Verificar CORS: `CORS_ORIGIN=http://monolegal.local` (solo aplica si el navegador llama directo a la API)
 - Revisar consola del navegador (F12 → Network)
 
 ### Gmail rechaza autenticación

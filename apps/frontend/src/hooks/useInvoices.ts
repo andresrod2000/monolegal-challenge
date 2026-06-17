@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Invoice, InvoicesApiResponse } from '@/types/invoice';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-
 interface UseInvoicesResult {
   invoices: Invoice[];
   loading: boolean;
@@ -21,7 +19,7 @@ export function useInvoices(): UseInvoicesResult {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/api/invoices`);
+      const response = await fetch('/api/invoices');
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }

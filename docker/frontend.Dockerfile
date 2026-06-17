@@ -11,8 +11,6 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
-ARG NEXT_PUBLIC_API_URL=http://api.monolegal.local
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN node scripts/link-workspaces.js \
   && npm install --ignore-scripts --prefix apps/frontend \
   && npm run build --prefix packages/shared \
