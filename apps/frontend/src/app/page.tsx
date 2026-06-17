@@ -8,8 +8,14 @@ import { CreateInvoiceModal } from '@/components/CreateInvoiceModal';
 import { EditClientModal } from '@/components/EditClientModal';
 import { EditInvoiceModal } from '@/components/EditInvoiceModal';
 import { InvoiceTable } from '@/components/InvoiceTable';
+import { InvoiceClientFilter } from '@/components/InvoiceClientFilter';
 import { KpiCard } from '@/components/KpiCard';
 import { StatusFilterBar } from '@/components/StatusFilter';
+import {
+  filterInvoices,
+  sortInvoices,
+  toggleSort,
+} from '@/lib/invoice-list-utils';
 import {
   createClient,
   deleteClient,
@@ -23,7 +29,7 @@ import {
 } from '@/hooks/useInvoices';
 import { useProcessReminders } from '@/hooks/useProcessReminders';
 import type { Client } from '@/types/client';
-import type { Invoice, StatusFilter } from '@/types/invoice';
+import type { Invoice, StatusFilter, ClientFilter, InvoiceSortState, InvoiceSortField } from '@/types/invoice';
 
 type Tab = 'invoices' | 'clients';
 
@@ -43,6 +49,11 @@ export default function DashboardPage() {
 
   const [tab, setTab] = useState<Tab>('invoices');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [clientFilter, setClientFilter] = useState<ClientFilter>('all');
+  const [sortState, setSortState] = useState<InvoiceSortState>({
+    field: 'dueDate',
+    direction: 'desc',
+  });
   const [showCreateClient, setShowCreateClient] = useState(false);
   const [showCreateInvoice, setShowCreateInvoice] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -61,10 +72,17 @@ export default function DashboardPage() {
     return counts;
   }, [invoices]);
 
-  const filteredInvoices = useMemo(() => {
-    if (statusFilter === 'all') return invoices;
-    return invoices.filter((inv) => inv.status === statusFilter);
-  }, [invoices, statusFilter]);
+  const displayedInvoices = useMemo(() => {
+    const filtered = filterInvoices(invoices, {
+      status: statusFilter,
+      clientId: clientFilter,
+    });
+    return sortInvoices(filtered, sortState);
+  }, [invoices, statusFilter, clientFilter, sortState]);
+
+  function handleSortChange(field: InvoiceSortField) {
+    setSortState((current) => toggleSort(current, field));
+  }
 
   const invoiceCountByClient = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -231,8 +249,13 @@ export default function DashboardPage() {
               ))}
             </section>
 
-            <section className="mb-6">
+            <section className="mb-6 flex flex-col gap-3">
               <StatusFilterBar value={statusFilter} onChange={setStatusFilter} />
+              <InvoiceClientFilter
+                clients={clients}
+                value={clientFilter}
+                onChange={setClientFilter}
+              />
             </section>
 
             <section>
@@ -242,7 +265,9 @@ export default function DashboardPage() {
                 </div>
               ) : (
                 <InvoiceTable
-                  invoices={filteredInvoices}
+                  invoices={displayedInvoices}
+                  sortState={sortState}
+                  onSortChange={handleSortChange}
                   onEdit={setEditingInvoice}
                   onProcessReminder={handleProcessInvoiceReminder}
                   processingInvoiceId={processingInvoiceId}
@@ -251,7 +276,7 @@ export default function DashboardPage() {
             </section>
 
             <footer className="mt-8 text-center text-sm text-slate-500">
-              {filteredInvoices.length} de {invoices.length} facturas mostradas
+              {displayedInvoices.length} de {invoices.length} facturas mostradas
             </footer>
           </>
         )}
