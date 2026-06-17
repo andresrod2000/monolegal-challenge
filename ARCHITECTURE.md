@@ -159,7 +159,7 @@ Utilizamos **Pino** para generar logs JSON en producción y formato legible en d
 
 ### 4.2 Estrategia
 
-- **`correlationId`:** identifica una ejecución completa del worker o una petición HTTP.
+- **`correlationId`:** identifica una ejecución completa del worker o una petición HTTP. Generado en `apps/api` (middleware `request-context`) y en cada ejecución del worker (`runJob`).
 - **`service`:** discrimina origen (`api`, `worker`, `seed`).
 - **Niveles:** `debug` (dev), `info` (operaciones normales), `warn` (reintentos), `error` (fallos por factura sin abortar lote).
 - **Agregación futura:** formato JSON compatible con ELK, Datadog o CloudWatch sin cambios de código.
@@ -208,13 +208,58 @@ DI **manual** mediante factory en `packages/infrastructure/src/di/container.ts`:
 
 ```typescript
 // Ejemplo conceptual
-const container = createContainer(config);
-const useCase = new ProcessInvoiceRemindersUseCase(
-  container.invoiceRepository,
-  container.emailProvider,
-  container.logger,
-);
+const container = await createContainer(config);
+const apiDeps = toApiDependencies(container);
+const app = createApp({ ...apiDeps, corsOrigin });
 ```
+
+La API recibe solo `ApiDependencies` (caso de uso + logger), no el container completo — **Interface Segregation Principle (ISP)**.
+
+---
+
+## 6.1 Integridad email y estado
+
+El worker procesa cada factura en este orden:
+
+1. Enviar email de recordatorio
+2. Actualizar estado en MongoDB
+
+**Justificación:** no se avanza el estado si el envío de correo falla.
+
+**Trade-off documentado:** si el email se envía correctamente pero `updateStatus` falla (p. ej. caída de DB), la factura permanece en el estado anterior y un reintento podría enviar un email duplicado. El caso de uso registra un `warn` con `emailAlreadySent: true` para facilitar la detección operativa. No se implementa outbox ni cola persistente — fuera del alcance del reto.
+
+---
+
+## 6.2 SOLID en el código
+
+| Principio | Dónde se aplica |
+|-----------|-----------------|
+| **SRP** | Un caso de uso = una acción de negocio; `main.ts` solo arranca; `createApp` configura HTTP; `invoice.mapper` serializa respuestas |
+| **OCP** | Nuevos proveedores de email vía `IEmailProvider`; seed vía `IInvoiceSeeder` sin tocar el repositorio de lectura/escritura |
+| **LSP** | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider` |
+| **ISP** | API depende de `GetInvoicesSummaryUseCase`, no de `Container`; `findAll` devuelve `InvoiceSummary` (read model) y `findByStatus` devuelve `Invoice` (write model) |
+| **DIP** | Application depende de ports en domain (`IInvoiceRepository`, `IEmailProvider`, `ILogger`); infrastructure implementa |
+
+### Dependencias entre paquetes
+
+```mermaid
+flowchart BT
+    shared[shared enums]
+    domain[domain entities ports]
+    application[application use cases]
+    infrastructure[infrastructure adapters]
+    apps[apps api worker frontend]
+
+    domain --> shared
+    application --> domain
+    application --> shared
+    infrastructure --> application
+    infrastructure --> domain
+    infrastructure --> shared
+    apps --> infrastructure
+```
+
+`domain` no importa `application` ni `infrastructure`. Los ports (`IInvoiceRepository`, `IEmailProvider`, `ILogger`, `IInvoiceSeeder`) viven en `packages/domain`.
 
 ---
 
@@ -253,8 +298,8 @@ segundorecordatorio →  desactivado           (email: aviso de desactivación)
 ```
 monolegal-challenge/
 ├── packages/
-│   ├── shared/           # Enums, tipos compartidos, logger interface
-│   ├── domain/           # Entidades + ports
+│   ├── shared/           # Enums y tipos compartidos (shared kernel)
+│   ├── domain/           # Entidades, errores de dominio y ports
 │   ├── application/      # Casos de uso + tests Jest
 │   └── infrastructure/   # Adaptadores + DI container
 ├── apps/

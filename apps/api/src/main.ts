@@ -1,24 +1,14 @@
 import 'dotenv/config';
-import cors from 'cors';
-import express from 'express';
-import { createContainer, disconnectMongoDB, loadConfigFromEnv } from '@monolegal/infrastructure';
-import { createInvoicesRouter } from './routes/invoices.routes.js';
+import { createContainer, disconnectMongoDB, loadConfigFromEnv, toApiDependencies } from '@monolegal/infrastructure';
+import { createApp } from './app.js';
 
 const PORT = Number(process.env.API_PORT ?? 4000);
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:3000';
 
 async function main(): Promise<void> {
   const container = await createContainer(loadConfigFromEnv('api'));
-  const app = express();
-
-  app.use(cors({ origin: CORS_ORIGIN }));
-  app.use(express.json());
-
-  app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', service: 'api', timestamp: new Date().toISOString() });
-  });
-
-  app.use('/api/invoices', createInvoicesRouter(container));
+  const apiDeps = toApiDependencies(container);
+  const app = createApp({ ...apiDeps, corsOrigin: CORS_ORIGIN });
 
   app.listen(PORT, () => {
     container.logger.info('API server started', { port: PORT, corsOrigin: CORS_ORIGIN });

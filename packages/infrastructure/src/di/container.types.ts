@@ -1,6 +1,6 @@
 import type { IEmailProvider } from '@monolegal/domain';
 import type { IInvoiceRepository } from '@monolegal/domain';
-import type { ILogger } from '@monolegal/shared';
+import type { ILogger } from '@monolegal/domain';
 import type { ProcessInvoiceRemindersUseCase } from '@monolegal/application';
 import type { GetInvoicesSummaryUseCase } from '@monolegal/application';
 
@@ -19,6 +19,18 @@ export interface Container {
   emailProvider: IEmailProvider;
   processInvoiceRemindersUseCase: ProcessInvoiceRemindersUseCase;
   getInvoicesSummaryUseCase: GetInvoicesSummaryUseCase;
+}
+
+export interface ApiDependencies {
+  logger: ILogger;
+  getInvoicesSummaryUseCase: GetInvoicesSummaryUseCase;
+}
+
+export function toApiDependencies(container: Container): ApiDependencies {
+  return {
+    logger: container.logger,
+    getInvoicesSummaryUseCase: container.getInvoicesSummaryUseCase,
+  };
 }
 
 export type ContainerFactory = (config: ContainerConfig) => Promise<Container>;

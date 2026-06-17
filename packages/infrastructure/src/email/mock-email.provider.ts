@@ -1,5 +1,5 @@
 import type { EmailMessage, IEmailProvider } from '@monolegal/domain';
-import type { ILogger } from '@monolegal/shared';
+import type { ILogger } from '@monolegal/domain';
 
 export class MockEmailProvider implements IEmailProvider {
   constructor(private readonly logger: ILogger) {}

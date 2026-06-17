@@ -12,7 +12,7 @@ Sistema de automatización de notificaciones de facturación y dashboard de visu
 
 ## Documentación
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — Decisiones arquitectónicas y capas Clean Architecture
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Decisiones arquitectónicas, capas Clean Architecture y sección **SOLID en el código** (§6.2)
 - [DEPLOYMENT.md](./DEPLOYMENT.md) — Guía de despliegue (Hito 5)
 
 ## Estructura del monorepo

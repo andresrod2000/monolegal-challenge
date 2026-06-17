@@ -1,5 +1,5 @@
 import mongoose, { Schema, type Document, type Model } from 'mongoose';
-import type { IInvoiceRepository, InvoiceProps, InvoiceSummary } from '@monolegal/domain';
+import { Invoice, type IInvoiceRepository, type InvoiceProps, type InvoiceSummary } from '@monolegal/domain';
 import { InvoiceStatus, isValidInvoiceStatus } from '@monolegal/shared';
 
 export interface InvoiceDocument extends Document {
@@ -49,6 +49,10 @@ function toInvoiceProps(doc: InvoiceDocument): InvoiceProps {
   };
 }
 
+function toDomain(doc: InvoiceDocument): Invoice {
+  return Invoice.fromProps(toInvoiceProps(doc));
+}
+
 function toInvoiceSummary(doc: InvoiceDocument): InvoiceSummary {
   return {
     id: doc._id.toString(),
@@ -63,9 +67,9 @@ function toInvoiceSummary(doc: InvoiceDocument): InvoiceSummary {
 export class MongoInvoiceRepository implements IInvoiceRepository {
   private readonly model = getInvoiceModel();
 
-  async findByStatus(statuses: InvoiceStatus[]): Promise<InvoiceProps[]> {
+  async findByStatus(statuses: InvoiceStatus[]): Promise<Invoice[]> {
     const docs = await this.model.find({ status: { $in: statuses } }).exec();
-    return docs.map(toInvoiceProps);
+    return docs.map(toDomain);
   }
 
   async findAll(): Promise<InvoiceSummary[]> {

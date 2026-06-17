@@ -1,6 +1,5 @@
 import { InvoiceStatus } from '@monolegal/shared';
-import type { IInvoiceRepository, InvoiceSummary } from '@monolegal/domain';
-import type { ILogger } from '@monolegal/shared';
+import type { IInvoiceRepository, InvoiceSummary, ILogger } from '@monolegal/domain';
 import { GetInvoicesSummaryUseCase } from '../get-invoices-summary.use-case.js';
 
 describe('GetInvoicesSummaryUseCase', () => {

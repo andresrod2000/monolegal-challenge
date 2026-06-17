@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { EmailMessage, IEmailProvider } from '@monolegal/domain';
-import type { ILogger } from '@monolegal/shared';
+import type { ILogger } from '@monolegal/domain';
 
 export interface GmailEmailProviderConfig {
   user: string;
