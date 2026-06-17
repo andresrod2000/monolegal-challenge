@@ -18,21 +18,7 @@ Para despliegue con Swarm, el nodo manager debe tener Docker Swarm inicializado.
 
 ---
 
-## 2. Configuración de hosts locales
-
-Agregar al archivo `hosts` del sistema:
-
-**Windows:** `C:\Windows\System32\drivers\etc\hosts`  
-**Linux/macOS:** `/etc/hosts`
-
-```
-127.0.0.1 monolegal.local
-127.0.0.1 api.monolegal.local
-```
-
----
-
-## 3. Configuración Gmail (contraseña de aplicación)
+## 2. Configuración Gmail (contraseña de aplicación)
 
 1. Acceder a [Google Account → Seguridad](https://myaccount.google.com/security)
 2. Activar **Verificación en 2 pasos** (obligatorio)
@@ -42,7 +28,7 @@ Agregar al archivo `hosts` del sistema:
 
 ---
 
-## 4. Variables de entorno
+## 3. Variables de entorno
 
 ```bash
 cp .env.example .env
@@ -59,34 +45,36 @@ API_PORT=4000
 CORS_ORIGIN=http://localhost:3000
 CRON_SCHEDULE=0 8 * * *
 RUN_ON_START=true
-NEXT_PUBLIC_API_URL=http://localhost:4000
+API_URL=http://localhost:4000
 ```
 
 > Para desarrollo sin enviar correos reales, usar `EMAIL_PROVIDER=mock`.
+>
+> `API_URL` es una variable de **runtime** usada por el proxy del frontend (`/api/invoices`). En Docker/Portainer el valor por defecto es `http://api:4000` (red interna del stack).
 
 ---
 
-## 5. Desarrollo local (sin Docker)
+## 4. Desarrollo local (sin Docker)
 
-### 5.1 Instalar dependencias
+### 4.1 Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### 5.2 Compilar paquetes
+### 4.2 Compilar paquetes
 
 ```bash
 npm run build
 ```
 
-### 5.3 Levantar MongoDB
+### 4.3 Levantar MongoDB
 
 ```bash
 docker run -d --name monolegal-mongo -p 27017:27017 mongo:7
 ```
 
-### 5.4 Ejecutar seed
+### 4.4 Ejecutar seed
 
 ```bash
 npm run seed
@@ -98,7 +86,7 @@ Seed completed: 3 clients, 15 invoices inserted.
 Status distribution: { al_dia: 4, primerrecordatorio: 4, segundorecordatorio: 4, desactivado: 3 }
 ```
 
-### 5.5 Iniciar servicios
+### 4.5 Iniciar servicios
 
 Terminal 1 — API:
 ```bash
@@ -115,7 +103,7 @@ Terminal 3 — Frontend:
 npm run dev:frontend
 ```
 
-### 5.6 Verificar
+### 4.6 Verificar
 
 | Recurso | URL |
 |---------|-----|
@@ -125,7 +113,7 @@ npm run dev:frontend
 
 ---
 
-## 6. Ejecutar pruebas
+## 5. Ejecutar pruebas
 
 ```bash
 npm test
@@ -140,32 +128,49 @@ npm run test:coverage --prefix packages/application
 
 ---
 
-## 7. Despliegue con Docker Swarm
+## 6. Despliegue con Docker Swarm
 
-### 7.1 Inicializar Swarm (solo primera vez)
+### 6.1 Inicializar Swarm (solo primera vez)
 
 ```bash
 docker swarm init
 ```
 
-### 7.2 Crear archivo de secretos (opcional, recomendado)
+### 6.2 Crear archivo de secretos (opcional, recomendado)
 
 ```bash
 echo "tu@gmail.com" | docker secret create gmail_user -
 echo "xxxx-xxxx-xxxx-xxxx" | docker secret create gmail_app_password -
 ```
 
-### 7.3 Construir imágenes
+### 6.3 Construir imágenes
 
 ```bash
 docker compose build
 ```
 
-### 7.4 Desplegar stack
+### 6.4 Desplegar stack
 
 ```bash
 docker stack deploy -c docker-compose.yml monolegal
 ```
+
+#### Despliegue con Portainer
+
+Al crear o editar el stack en Portainer, definir las variables en la sección **Environment variables** (al final del editor). Portainer **no** lee el `.env` de tu máquina local.
+
+```env
+API_URL=http://api:4000
+EMAIL_PROVIDER=gmail
+GMAIL_USER=tu@gmail.com
+GMAIL_APP_PASSWORD=xxxx-xxxx-xxxx-xxxx
+CRON_SCHEDULE=0 8 * * *
+RUN_ON_START=false
+```
+
+`API_URL` se lee en **runtime** por el servicio `frontend` (proxy server-side hacia la API). No requiere rebuild al cambiar la URL; basta con redeployar el servicio frontend.
+
+Si la API está fuera del stack, apunta `API_URL` a la URL accesible desde la red del contenedor frontend.
 
 Verificar servicios:
 ```bash
@@ -173,7 +178,7 @@ docker stack services monolegal
 docker stack ps monolegal
 ```
 
-### 7.5 Ejecutar seed en el stack
+### 6.5 Ejecutar seed en el stack
 
 ```bash
 # Obtener ID del contenedor de API
@@ -192,7 +197,7 @@ MONGODB_URI=mongodb://localhost:27017/monolegal npm run seed
 ```
 (con MongoDB del stack expuesto o accesible)
 
-### 7.6 Acceder a la aplicación
+### 6.6 Acceder a la aplicación
 
 | Servicio | URL |
 |----------|-----|
@@ -202,7 +207,7 @@ MONGODB_URI=mongodb://localhost:27017/monolegal npm run seed
 
 ---
 
-## 8. Probar el Worker manualmente
+## 7. Probar el Worker manualmente
 
 Con `RUN_ON_START=true` en el worker, al iniciar procesará facturas inmediatamente.
 
@@ -218,7 +223,7 @@ Buscar en logs:
 
 ---
 
-## 9. Troubleshooting
+## 8. Troubleshooting
 
 ### npm install falla con error de symlink (Windows)
 
@@ -244,7 +249,7 @@ scripts\setup-windows.cmd
 
 4. Como último recurso, activa **Modo de desarrollador** (Configuración → Privacidad y seguridad → Para desarrolladores) para permitir junctions.
 
-Para desarrollo local completo sin instalar en Windows, se recomienda **Docker** (ver sección 7).
+Para desarrollo local completo sin instalar en Windows, se recomienda **Docker** (ver sección 6).
 
 ### API no responde
 
@@ -255,8 +260,10 @@ curl http://api.monolegal.local/health
 
 ### Frontend no carga datos
 
-- Verificar `NEXT_PUBLIC_API_URL` apunta a `http://api.monolegal.local`
-- Verificar CORS: `CORS_ORIGIN=http://monolegal.local`
+- Verificar que el servicio `frontend` tiene `API_URL` configurado (por defecto `http://api:4000` en el stack)
+- Comprobar que el proxy responde: `curl http://monolegal.local/api/invoices` (o la URL pública del frontend)
+- Revisar logs del frontend: `docker service logs monolegal_frontend`
+- Verificar CORS: `CORS_ORIGIN=http://monolegal.local` (solo aplica si el navegador llama directo a la API)
 - Revisar consola del navegador (F12 → Network)
 
 ### Gmail rechaza autenticación
@@ -289,7 +296,7 @@ docker volume rm monolegal_mongo-data  # si se desea limpiar datos
 
 ---
 
-## 10. Checklist de entrega
+## 9. Checklist de entrega
 
 - [ ] `npm install && npm run build` compila sin errores
 - [ ] `npm test` — todos los tests pasan
