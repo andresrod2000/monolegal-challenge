@@ -1,0 +1,30 @@
+{
+  "name": "monolegal-challenge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema de automatización de notificaciones de facturación - Reto Monolegal",
+  "scripts": {
+    "build": "npm run build:packages && npm run build --prefix apps/api && npm run build --prefix apps/worker && npm run build --prefix apps/frontend",
+    "build:packages": "npm run build --prefix packages/shared && npm run build --prefix packages/domain && npm run build --prefix packages/application && npm run build --prefix packages/infrastructure",
+    "test": "npm run test --prefix packages/application",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "seed": "tsx scripts/seed.ts",
+    "postinstall": "node scripts/install-workspaces.js",
+    "dev:api": "npm run dev --prefix apps/api",
+    "dev:worker": "npm run dev --prefix apps/worker",
+    "dev:frontend": "npm run dev --prefix apps/frontend"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.1"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

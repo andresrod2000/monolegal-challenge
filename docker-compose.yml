@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.2
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.swarmMode=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      # Descomentar para TLS en producción real:
+      # - '--entrypoints.websecure.address=:443'
+      # - '--certificatesresolvers.letsencrypt.acme.email=ops@monolegal.com'
+      # - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      # - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+    ports:
+      - '80:80'
+      - '8080:8080'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - monolegal-net
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  mongodb:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_DATABASE: monolegal
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - monolegal-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/monolegal
+      API_PORT: 4000
+      CORS_ORIGIN: http://monolegal.local
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-mock}
+      GMAIL_USER: ${GMAIL_USER:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      NODE_ENV: production
+    networks:
+      - monolegal-net
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.monolegal-api.rule=Host(`api.monolegal.local`)'
+        - 'traefik.http.routers.monolegal-api.entrypoints=web'
+        - 'traefik.http.services.monolegal-api.loadbalancer.server.port=4000'
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/monolegal
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-0 8 * * *}
+      RUN_ON_START: ${RUN_ON_START:-false}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-mock}
+      GMAIL_USER: ${GMAIL_USER:-}
+      GMAIL_APP_PASSWORD: ${GMAIL_APP_PASSWORD:-}
+      NODE_ENV: production
+    networks:
+      - monolegal-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://api.monolegal.local
+    networks:
+      - monolegal-net
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.routers.monolegal-frontend.rule=Host(`monolegal.local`)'
+        - 'traefik.http.routers.monolegal-frontend.entrypoints=web'
+        - 'traefik.http.services.monolegal-frontend.loadbalancer.server.port=3000'
+
+networks:
+  monolegal-net:
+    driver: overlay
+    attachable: true
+
+volumes:
+  mongo-data:
+    driver: local
