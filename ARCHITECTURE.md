@@ -2,23 +2,21 @@
 
 Documento de referencia arquitectónica para el sistema de gestión de facturación, clientes, recordatorios automáticos y dashboard operativo.
 
-
-
-| Diagrama | Archivo | Sección |
-| -------- | ------- | ------- |
-| Contexto del sistema | [01-contexto-sistema.png](docs/diagrams/01-contexto-sistema.png) | §1.1 |
-| Capas Clean Architecture | [02-clean-architecture.png](docs/diagrams/02-clean-architecture.png) | §1.2 |
-| Máquina de estados | [03-maquina-estados.png](docs/diagrams/03-maquina-estados.png) | §3.2 |
-| Stack backend | [04-stack-backend.png](docs/diagrams/04-stack-backend.png) | §1.3 |
-| Stack frontend + BFF | [05-stack-frontend.png](docs/diagrams/05-stack-frontend.png) | §1.3, §4 |
-| Flujo recordatorio | [06-flujo-recordatorio.png](docs/diagrams/06-flujo-recordatorio.png) | §3.3 |
-| Despliegue Swarm | [07-despliegue.png](docs/diagrams/07-despliegue.png) | §9 |
-| Ports & Adapters | [08-ports-adapters.png](docs/diagrams/08-ports-adapters.png) | §2.6 |
-| Modelo de datos | [09-modelo-datos.png](docs/diagrams/09-modelo-datos.png) | §5 |
-| Composition root (DI) | [10-composition-root.png](docs/diagrams/10-composition-root.png) | §7 |
-| Pirámide de tests | [11-piramide-tests.png](docs/diagrams/11-piramide-tests.png) | §8 |
-| Dependencias monorepo | [12-monorepo-deps.png](docs/diagrams/12-monorepo-deps.png) | §2.8 |
-| API vs Worker | [13-api-vs-worker.png](docs/diagrams/13-api-vs-worker.png) | §3.1 |
+| Diagrama                 | Archivo                                                              | Sección  |
+| ------------------------ | -------------------------------------------------------------------- | -------- |
+| Contexto del sistema     | [01-contexto-sistema.png](docs/diagrams/01-contexto-sistema.png)     | §1.1     |
+| Capas Clean Architecture | [02-clean-architecture.png](docs/diagrams/02-clean-architecture.png) | §1.2     |
+| Máquina de estados       | [03-maquina-estados.png](docs/diagrams/03-maquina-estados.png)       | §3.2     |
+| Stack backend            | [04-stack-backend.png](docs/diagrams/04-stack-backend.png)           | §1.3     |
+| Stack frontend + BFF     | [05-stack-frontend.png](docs/diagrams/05-stack-frontend.png)         | §1.3, §4 |
+| Flujo recordatorio       | [06-flujo-recordatorio.png](docs/diagrams/06-flujo-recordatorio.png) | §3.3     |
+| Despliegue Swarm         | [07-despliegue.png](docs/diagrams/07-despliegue.png)                 | §9       |
+| Ports & Adapters         | [08-ports-adapters.png](docs/diagrams/08-ports-adapters.png)         | §2.6     |
+| Modelo de datos          | [09-modelo-datos.png](docs/diagrams/09-modelo-datos.png)             | §5       |
+| Composition root (DI)    | [10-composition-root.png](docs/diagrams/10-composition-root.png)     | §7       |
+| Pirámide de tests        | [11-piramide-tests.png](docs/diagrams/11-piramide-tests.png)         | §8       |
+| Dependencias monorepo    | [12-monorepo-deps.png](docs/diagrams/12-monorepo-deps.png)           | §2.8     |
+| API vs Worker            | [13-api-vs-worker.png](docs/diagrams/13-api-vs-worker.png)           | §3.1     |
 
 ---
 
@@ -39,20 +37,20 @@ Criterios de evaluación: **Clean Code**, **SOLID**, **Unit Test**, **documentac
 
 ### 0.2 Trazabilidad requisito → implementación
 
-| Requisito | Componente | Archivo clave | Sección / diagrama |
-| --------- | ---------- | ------------- | ------------------ |
-| Conexión MongoDB | `MongoInvoiceRepository`, `MongoClientRepository` | `packages/infrastructure/src/persistence/` | §5 |
-| Extraer facturas por estado | `findByStatus(REMINDER_STATUSES)` | `packages/application/src/process-invoice-reminders.use-case.ts` | §3.3, [flujo](docs/diagrams/06-flujo-recordatorio.png) |
-| Validar `primerrecordatorio` / `segundorecordatorio` | Entidad `Invoice` + enum compartido | `packages/domain/src/entities/invoice.ts` | §3.2, [estados](docs/diagrams/03-maquina-estados.png) |
-| Email según estado | `buildReminderPayload()` + `IEmailProvider` | `packages/domain/src/entities/invoice.ts` | §6 |
-| Actualizar estado tras email | `processInvoice()` → `updateStatus` | `packages/application/src/process-invoice-reminders.use-case.ts` | §6.1, ADR-05 |
-| 3 clientes | Seed fijo | `scripts/seed.ts` | §5.3 |
-| Resumen de facturas en UI | `GetInvoicesSummaryUseCase` + dashboard | `apps/frontend/src/app/page.tsx` | §4, [frontend](docs/diagrams/05-stack-frontend.png) |
-| Clean Code / SOLID | Capas separadas, un use case por acción | `packages/domain/`, `packages/application/` | §2 |
-| Unit Test | Jest con mocks de ports | `packages/**/__tests__/` | §8 |
-| Inyección de dependencias | `createContainer()` + constructor injection | `packages/infrastructure/src/di/container.ts` | §7 |
-| Documentación y arquitectura | Este documento | `ARCHITECTURE.md` | Todo el documento |
-| Stack backend / frontend | Node, Express, Next.js, React, etc. | `apps/*/package.json` | §1.3, ADR-13 a ADR-16 |
+| Requisito                                            | Componente                                        | Archivo clave                                                    | Sección / diagrama                                     |
+| ---------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------ |
+| Conexión MongoDB                                     | `MongoInvoiceRepository`, `MongoClientRepository` | `packages/infrastructure/src/persistence/`                       | §5                                                     |
+| Extraer facturas por estado                          | `findByStatus(REMINDER_STATUSES)`                 | `packages/application/src/process-invoice-reminders.use-case.ts` | §3.3, [flujo](docs/diagrams/06-flujo-recordatorio.png) |
+| Validar `primerrecordatorio` / `segundorecordatorio` | Entidad `Invoice` + enum compartido               | `packages/domain/src/entities/invoice.ts`                        | §3.2, [estados](docs/diagrams/03-maquina-estados.png)  |
+| Email según estado                                   | `buildReminderPayload()` + `IEmailProvider`       | `packages/domain/src/entities/invoice.ts`                        | §6                                                     |
+| Actualizar estado tras email                         | `processInvoice()` → `updateStatus`               | `packages/application/src/process-invoice-reminders.use-case.ts` | §6.1, ADR-05                                           |
+| 3 clientes                                           | Seed fijo                                         | `scripts/seed.ts`                                                | §5.3                                                   |
+| Resumen de facturas en UI                            | `GetInvoicesSummaryUseCase` + dashboard           | `apps/frontend/src/app/page.tsx`                                 | §4, [frontend](docs/diagrams/05-stack-frontend.png)    |
+| Clean Code / SOLID                                   | Capas separadas, un use case por acción           | `packages/domain/`, `packages/application/`                      | §2                                                     |
+| Unit Test                                            | Jest con mocks de ports                           | `packages/**/__tests__/`                                         | §8                                                     |
+| Inyección de dependencias                            | `createContainer()` + constructor injection       | `packages/infrastructure/src/di/container.ts`                    | §7                                                     |
+| Documentación y arquitectura                         | Este documento                                    | `ARCHITECTURE.md`                                                | Todo el documento                                      |
+| Stack backend / frontend                             | Node, Express, Next.js, React, etc.               | `apps/*/package.json`                                            | §1.3, ADR-13 a ADR-16                                  |
 
 ---
 
@@ -80,28 +78,28 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 ![Stack backend — Node.js, Express, packages y adaptadores](docs/diagrams/04-stack-backend.png)
 
-| Tecnología | Versión | Rol | Por qué esta elección | Alternativa descartada |
-| ---------- | ------- | --- | --------------------- | ---------------------- |
-| **Node.js** | ≥ 20 | Runtime | Ecosistema maduro para I/O async (MongoDB, SMTP, cron); mismo lenguaje en todo el monorepo | Deno/Bun (menor adopción en equipos enterprise) |
-| **TypeScript** | 5.7 | Lenguaje | Tipado estático en capas, ports e interfaces; refactors seguros en monorepo | JavaScript puro (menos seguridad en contratos entre capas) |
-| **Express** | 4.21 | HTTP API | CRUD REST simple sin ceremonia; routers delgados que delegan a use cases | NestJS (más boilerplate y acoplamiento al framework); Fastify (menor familiaridad, beneficio marginal aquí) |
-| **Mongoose** | 8.9 | ODM MongoDB | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado) |
-| **Nodemailer** | 6.9 | Email SMTP | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider` | SendGrid SDK (requerimiento del reto: Gmail propio) |
-| **Pino** | 9.6 | Logging | JSON nativo, alto rendimiento, bajo overhead en worker cron | Winston (más lento); console.log (no estructurado) |
-| **node-cron** | 3.0 | Scheduler | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra | BullMQ (requiere Redis, overkill para 1 job/día) |
-| **tsx** | 4.19 | Dev runner | Hot reload en API/worker sin compilar en cada cambio | nodemon + tsc (más lento) |
-| **Jest** | — | Tests | Estándar en ecosistema Node; mocks de ports sin MongoDB/Gmail en CI | Vitest (válido, pero Jest más universal en evaluaciones) |
+| Tecnología     | Versión | Rol         | Por qué esta elección                                                                      | Alternativa descartada                                                                                      |
+| -------------- | ------- | ----------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| **Node.js**    | ≥ 20    | Runtime     | Ecosistema maduro para I/O async (MongoDB, SMTP, cron); mismo lenguaje en todo el monorepo | Deno/Bun (menor adopción en equipos enterprise)                                                             |
+| **TypeScript** | 5.7     | Lenguaje    | Tipado estático en capas, ports e interfaces; refactors seguros en monorepo                | JavaScript puro (menos seguridad en contratos entre capas)                                                  |
+| **Express**    | 4.21    | HTTP API    | CRUD REST simple sin ceremonia; routers delgados que delegan a use cases                   | NestJS (más boilerplate y acoplamiento al framework); Fastify (menor familiaridad, beneficio marginal aquí) |
+| **Mongoose**   | 8.9     | ODM MongoDB | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries           | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado)                                            |
+| **Nodemailer** | 6.9     | Email SMTP  | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider`         | SendGrid SDK (requerimiento del reto: Gmail propio)                                                         |
+| **Pino**       | 9.6     | Logging     | JSON nativo, alto rendimiento, bajo overhead en worker cron                                | Winston (más lento); console.log (no estructurado)                                                          |
+| **node-cron**  | 3.0     | Scheduler   | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                                   | BullMQ (requiere Redis, overkill para 1 job/día)                                                            |
+| **tsx**        | 4.19    | Dev runner  | Hot reload en API/worker sin compilar en cada cambio                                       | nodemon + tsc (más lento)                                                                                   |
+| **Jest**       | —       | Tests       | Estándar en ecosistema Node; mocks de ports sin MongoDB/Gmail en CI                        | Vitest (válido, pero Jest más universal en evaluaciones)                                                    |
 
 #### Frontend
 
 ![Stack frontend — Next.js, React, Tailwind y patrón BFF](docs/diagrams/05-stack-frontend.png)
 
-| Tecnología | Versión | Rol | Por qué esta elección | Alternativa descartada |
-| ---------- | ------- | --- | --------------------- | ---------------------- |
-| **Next.js** | 15.1 | Framework UI + BFF | App Router, Route Handlers como proxy server-side, SSR/SSG disponible | Vite + React SPA (sin BFF integrado, CORS manual); Remix (menor ecosistema) |
-| **React** | 19 | UI library | Componentes declarativos, hooks para estado local del dashboard | Vue/Svelte (requisito implícito de stack React en retos frontend) |
-| **Tailwind CSS** | 3.4 | Estilos | Utility-first, prototipado rápido de tablas, KPIs y modales sin CSS custom masivo | CSS Modules (más verboso); component library (Material UI añade peso innecesario) |
-| **TypeScript** | 5.7 | Tipado frontend | Tipos compartidos mental model con backend; hooks y props tipados | PropTypes (obsoleto en TS) |
+| Tecnología       | Versión | Rol                | Por qué esta elección                                                             | Alternativa descartada                                                            |
+| ---------------- | ------- | ------------------ | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Next.js**      | 15.1    | Framework UI + BFF | App Router, Route Handlers como proxy server-side, SSR/SSG disponible             | Vite + React SPA (sin BFF integrado, CORS manual); Remix (menor ecosistema)       |
+| **React**        | 19      | UI library         | Componentes declarativos, hooks para estado local del dashboard                   | Vue/Svelte (requisito implícito de stack React en retos frontend)                 |
+| **Tailwind CSS** | 3.4     | Estilos            | Utility-first, prototipado rápido de tablas, KPIs y modales sin CSS custom masivo | CSS Modules (más verboso); component library (Material UI añade peso innecesario) |
+| **TypeScript**   | 5.7     | Tipado frontend    | Tipos compartidos mental model con backend; hooks y props tipados                 | PropTypes (obsoleto en TS)                                                        |
 
 **Por qué el frontend no depende de `@monolegal/*`:** mantiene el dashboard como capa de presentación pura. Consume JSON de la API vía proxy; no importa lógica de dominio ni casos de uso — desacoplamiento total entre UI y backend.
 
@@ -113,12 +111,12 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 ### 2.1 Por qué Clean Architecture en monorepo npm
 
-| Aspecto | Detalle |
-| ------- | ------- |
-| **Problema** | El reto mezcla persistencia, email, reglas de negocio y UI. Acoplar todo en un solo módulo dificulta tests, evolución y evaluación de SOLID. |
-| **Decisión** | Monorepo con 4 packages (`shared`, `domain`, `application`, `infrastructure`) y 3 apps (`api`, `worker`, `frontend`) con dependencias unidireccionales. |
-| **Alternativas descartadas** | NestJS monolítico (más framework que lógica de negocio); multi-repo (fricción al compartir enums y tipos). |
-| **Consecuencia** | Cada capa testeable de forma aislada; worker y API comparten casos de uso sin duplicar lógica. |
+| Aspecto                      | Detalle                                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Problema**                 | El reto mezcla persistencia, email, reglas de negocio y UI. Acoplar todo en un solo módulo dificulta tests, evolución y evaluación de SOLID.            |
+| **Decisión**                 | Monorepo con 4 packages (`shared`, `domain`, `application`, `infrastructure`) y 3 apps (`api`, `worker`, `frontend`) con dependencias unidireccionales. |
+| **Alternativas descartadas** | NestJS monolítico (más framework que lógica de negocio); multi-repo (fricción al compartir enums y tipos).                                              |
+| **Consecuencia**             | Cada capa testeable de forma aislada; worker y API comparten casos de uso sin duplicar lógica.                                                          |
 
 ### 2.2 Domain (Dominio)
 
@@ -132,7 +130,7 @@ Contiene las reglas de negocio puras, independientes de frameworks y bases de da
 
 **Regla de dependencia:** el dominio no importa nada de capas externas.
 
-**Por qué Rich Domain Model en `Invoice`:** las reglas de transición de estado y los templates de email son reglas de negocio, no detalles de SMTP ni MongoDB. Centralizarlas en la entidad evita un *Anemic Domain Model* donde la lógica quedaría dispersa en use cases o repositorios.
+**Por qué Rich Domain Model en `Invoice`:** las reglas de transición de estado y los templates de email son reglas de negocio, no detalles de SMTP ni MongoDB. Centralizarlas en la entidad evita un _Anemic Domain Model_ donde la lógica quedaría dispersa en use cases o repositorios.
 
 ### 2.3 Application (Casos de uso)
 
@@ -140,13 +138,13 @@ Contiene las reglas de negocio puras, independientes de frameworks y bases de da
 
 Orquesta la lógica de negocio aplicando el **Principio de Responsabilidad Única (SRP)** — un caso de uso por acción de negocio:
 
-| Caso de uso | Responsabilidad |
-| ----------- | --------------- |
-| `ProcessOverdueInvoicesUseCase` | Transicionar facturas `al_dia` vencidas a `primerrecordatorio` |
-| `ProcessInvoiceRemindersUseCase` | Procesar recordatorios, resolver email del cliente y transicionar estados |
-| `GetInvoicesSummaryUseCase` | Listar resumen de facturas con datos del cliente (join) |
-| `GetInvoiceByIdUseCase` / `CreateInvoiceUseCase` / `UpdateInvoiceUseCase` / `DeleteInvoiceUseCase` | CRUD de facturas |
-| `GetClientsUseCase` / `GetClientByIdUseCase` / `CreateClientUseCase` / `UpdateClientUseCase` / `DeleteClientUseCase` | CRUD de clientes |
+| Caso de uso                                                                                                          | Responsabilidad                                                           |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `ProcessOverdueInvoicesUseCase`                                                                                      | Transicionar facturas `al_dia` vencidas a `primerrecordatorio`            |
+| `ProcessInvoiceRemindersUseCase`                                                                                     | Procesar recordatorios, resolver email del cliente y transicionar estados |
+| `GetInvoicesSummaryUseCase`                                                                                          | Listar resumen de facturas con datos del cliente (join)                   |
+| `GetInvoiceByIdUseCase` / `CreateInvoiceUseCase` / `UpdateInvoiceUseCase` / `DeleteInvoiceUseCase`                   | CRUD de facturas                                                          |
+| `GetClientsUseCase` / `GetClientByIdUseCase` / `CreateClientUseCase` / `UpdateClientUseCase` / `DeleteClientUseCase` | CRUD de clientes                                                          |
 
 Reciben dependencias **por inyección** (constructor), nunca instancian adaptadores concretos.
 
@@ -169,11 +167,11 @@ Implementaciones concretas de los ports:
 
 **Ubicación:** `apps/api`, `apps/worker`, `apps/frontend`
 
-| App | Responsabilidad | Qué NO hace |
-| --- | --------------- | ----------- |
-| **API** (`apps/api/src/routes/`) | Enrutar HTTP, mapear DTOs, delegar a casos de uso | No contiene reglas de negocio ni accede a MongoDB directamente |
-| **Worker** (`apps/worker/src/main.ts`) | Programar cron, ejecutar casos de uso de procesamiento | No expone endpoints HTTP |
-| **Frontend** (`apps/frontend/`) | UI, hooks de datos, proxy BFF hacia la API | No contiene lógica de transición de estados ni envío de email |
+| App                                    | Responsabilidad                                        | Qué NO hace                                                    |
+| -------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------- |
+| **API** (`apps/api/src/routes/`)       | Enrutar HTTP, mapear DTOs, delegar a casos de uso      | No contiene reglas de negocio ni accede a MongoDB directamente |
+| **Worker** (`apps/worker/src/main.ts`) | Programar cron, ejecutar casos de uso de procesamiento | No expone endpoints HTTP                                       |
+| **Frontend** (`apps/frontend/`)        | UI, hooks de datos, proxy BFF hacia la API             | No contiene lógica de transición de estados ni envío de email  |
 
 ### 2.6 Ports & Adapters (Hexagonal)
 
@@ -185,13 +183,13 @@ El dominio define **ports** (contratos); la infraestructura provee **adapters** 
 
 ### 2.7 SOLID en el código
 
-| Principio | Dónde se aplica |
-| --------- | --------------- |
-| **SRP** | Un caso de uso = una acción de negocio; routers solo enrutan HTTP; mappers solo serializan DTOs |
-| **OCP** | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso |
-| **LSP** | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider` |
-| **ISP** | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente |
-| **DIP** | Application depende de ports en domain; casos de uso nunca importan Mongoose ni Nodemailer |
+| Principio | Dónde se aplica                                                                                                                |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **SRP**   | Un caso de uso = una acción de negocio; routers solo enrutan HTTP; mappers solo serializan DTOs                                |
+| **OCP**   | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso             |
+| **LSP**   | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider`                                           |
+| **ISP**   | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente |
+| **DIP**   | Application depende de ports en domain; casos de uso nunca importan Mongoose ni Nodemailer                                     |
 
 ### 2.8 Dependencias entre paquetes
 
@@ -217,23 +215,23 @@ El envío de correos es una operación **lenta e impredecible** (latencia de red
 
 #### Beneficios
 
-| Aspecto | Beneficio |
-| ------- | --------- |
-| **Resiliencia** | Fallo en envío de email no afecta la API |
-| **Escalabilidad** | Worker y API escalan de forma independiente en Docker Swarm |
-| **SRP** | Cada servicio tiene una única razón para cambiar |
+| Aspecto            | Beneficio                                                         |
+| ------------------ | ----------------------------------------------------------------- |
+| **Resiliencia**    | Fallo en envío de email no afecta la API                          |
+| **Escalabilidad**  | Worker y API escalan de forma independiente en Docker Swarm       |
+| **SRP**            | Cada servicio tiene una única razón para cambiar                  |
 | **Observabilidad** | Logs separados por servicio (`service: api` vs `service: worker`) |
 
 ### 3.2 Máquina de estados de factura
 
 ![Máquina de estados — transiciones de factura](docs/diagrams/03-maquina-estados.png)
 
-| Estado | Valor | Descripción |
-| ------ | ----- | ----------- |
-| Al día | `al_dia` | Factura vigente, sin acción |
-| Primer recordatorio | `primerrecordatorio` | Pendiente de envío de 1er aviso |
-| Segundo recordatorio | `segundorecordatorio` | Pendiente de envío de 2do aviso |
-| Desactivado | `desactivado` | Servicio desactivado tras 2do aviso |
+| Estado               | Valor                 | Descripción                         |
+| -------------------- | --------------------- | ----------------------------------- |
+| Al día               | `al_dia`              | Factura vigente, sin acción         |
+| Primer recordatorio  | `primerrecordatorio`  | Pendiente de envío de 1er aviso     |
+| Segundo recordatorio | `segundorecordatorio` | Pendiente de envío de 2do aviso     |
+| Desactivado          | `desactivado`         | Servicio desactivado tras 2do aviso |
 
 **Regla de vencimiento:** una factura en `al_dia` pasa a `primerrecordatorio` desde el día siguiente al vencimiento (`dueDate` estrictamente anterior a hoy). El día del vencimiento sigue en `al_dia`.
 
@@ -273,26 +271,26 @@ El frontend Next.js no llama a Express directamente desde el navegador. Usa **Ro
 
 **Por qué proxy Next.js en lugar de llamar Express directamente:**
 
-| Razón | Detalle |
-| ----- | ------- |
-| **CORS** | Evita configurar CORS complejo en desarrollo y producción |
-| **Encapsulación** | `API_URL` solo existe server-side; el navegador no conoce la URL interna de la API |
-| **Evolución** | Permite añadir auth, rate limiting o transformación de respuestas en el BFF sin tocar componentes React |
+| Razón             | Detalle                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------- |
+| **CORS**          | Evita configurar CORS complejo en desarrollo y producción                                               |
+| **Encapsulación** | `API_URL` solo existe server-side; el navegador no conoce la URL interna de la API                      |
+| **Evolución**     | Permite añadir auth, rate limiting o transformación de respuestas en el BFF sin tocar componentes React |
 
 **Archivos clave del proxy:** `apps/frontend/src/app/api/invoices/route.ts`, `apps/frontend/src/app/api/clients/route.ts`, `apps/frontend/src/app/api/reminders/process/[invoiceId]/route.ts`.
 
 ### 4.2 Componentes y hooks
 
-| Elemento | Ubicación | Responsabilidad |
-| -------- | --------- | --------------- |
-| `DashboardPage` | `apps/frontend/src/app/page.tsx` | Orquestación de pestañas, filtros, KPIs y modales |
-| `InvoiceTable` | `components/InvoiceTable.tsx` | Tabla de facturas con acciones CRUD y recordatorio |
-| `KpiCard` | `components/KpiCard.tsx` | Contadores por estado (resumen visual) |
-| `StatusFilterBar` | `components/StatusFilter.tsx` | Filtro por estado de factura |
-| `InvoiceClientFilter` | `components/InvoiceClientFilter.tsx` | Filtro por cliente |
-| `useInvoices` | `hooks/useInvoices.ts` | Fetch y mutaciones de facturas |
-| `useClients` | `hooks/useClients.ts` | Fetch y mutaciones de clientes |
-| `useProcessReminders` | `hooks/useProcessReminders.ts` | Ejecución manual de recordatorios |
+| Elemento              | Ubicación                            | Responsabilidad                                    |
+| --------------------- | ------------------------------------ | -------------------------------------------------- |
+| `DashboardPage`       | `apps/frontend/src/app/page.tsx`     | Orquestación de pestañas, filtros, KPIs y modales  |
+| `InvoiceTable`        | `components/InvoiceTable.tsx`        | Tabla de facturas con acciones CRUD y recordatorio |
+| `KpiCard`             | `components/KpiCard.tsx`             | Contadores por estado (resumen visual)             |
+| `StatusFilterBar`     | `components/StatusFilter.tsx`        | Filtro por estado de factura                       |
+| `InvoiceClientFilter` | `components/InvoiceClientFilter.tsx` | Filtro por cliente                                 |
+| `useInvoices`         | `hooks/useInvoices.ts`               | Fetch y mutaciones de facturas                     |
+| `useClients`          | `hooks/useClients.ts`                | Fetch y mutaciones de clientes                     |
+| `useProcessReminders` | `hooks/useProcessReminders.ts`       | Ejecución manual de recordatorios                  |
 
 ### 4.3 Resumen de facturas
 
@@ -318,13 +316,13 @@ El dashboard muestra:
 
 ### 5.2 Índices y consultas
 
-| Índice | Campos | Por qué |
-| ------ | ------ | ------- |
-| Simple | `clientId` | Filtrar facturas por cliente |
-| Simple | `status` | `findByStatus` del worker |
-| Compuesto | `{ status, clientId }` | Filtros combinados en dashboard |
-| Compuesto | `{ status, dueDate }` | `findByStatusAndDueDateBefore` para vencidas |
-| Unique | `invoiceNumber` | Evitar duplicados |
+| Índice    | Campos                 | Por qué                                      |
+| --------- | ---------------------- | -------------------------------------------- |
+| Simple    | `clientId`             | Filtrar facturas por cliente                 |
+| Simple    | `status`               | `findByStatus` del worker                    |
+| Compuesto | `{ status, clientId }` | Filtros combinados en dashboard              |
+| Compuesto | `{ status, dueDate }`  | `findByStatusAndDueDateBefore` para vencidas |
+| Unique    | `invoiceNumber`        | Evitar duplicados                            |
 
 **Por qué Mongoose vs driver nativo:** schemas declarativos, validación en persistencia e índices en el schema — menor boilerplate para un reto con pocas entidades. El driver nativo ofrecería más control pero a costa de código repetitivo de validación.
 
@@ -332,10 +330,10 @@ El dashboard muestra:
 
 El script `scripts/seed.ts` inserta exactamente **3 clientes** fijos:
 
-| ID | Nombre | Email |
-| -- | ------ | ----- |
-| `client-acme` | Acme Corp | billing@acme.com |
-| `client-legaltech` | LegalTech SA | finanzas@legaltech.co |
+| ID                   | Nombre          | Email                    |
+| -------------------- | --------------- | ------------------------ |
+| `client-acme`        | Acme Corp       | billing@acme.com         |
+| `client-legaltech`   | LegalTech SA    | finanzas@legaltech.co    |
 | `client-consultores` | Consultores XYZ | pagos@consultoresxyz.com |
 
 Más **15 facturas** aleatorias distribuidas entre los 3 clientes, con estado derivado del vencimiento.
@@ -408,13 +406,13 @@ El worker usa el container completo incluyendo `ProcessInvoiceRemindersUseCase` 
 
 ### 8.2 Cobertura por paquete
 
-| Paquete | Archivos de test | Qué se valida |
-| ------- | ---------------- | ------------- |
-| `packages/domain` | `client.test.ts`, `invoice.test.ts` | Validación de entidades, transiciones de estado, templates de email |
-| `packages/application` | 14 archivos `.test.ts` | Orquestación de use cases con mocks de ports |
-| `packages/shared` | `dummy-invoice-data.test.ts` | Utilidades de fechas y generación de datos |
-| `packages/infrastructure` | — | Adaptadores validados manualmente vía seed + DEPLOYMENT |
-| `apps/*` | — | Sin tests; delegan a use cases ya testeados |
+| Paquete                   | Archivos de test                    | Qué se valida                                                       |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------------- |
+| `packages/domain`         | `client.test.ts`, `invoice.test.ts` | Validación de entidades, transiciones de estado, templates de email |
+| `packages/application`    | 14 archivos `.test.ts`              | Orquestación de use cases con mocks de ports                        |
+| `packages/shared`         | `dummy-invoice-data.test.ts`        | Utilidades de fechas y generación de datos                          |
+| `packages/infrastructure` | —                                   | Adaptadores validados manualmente vía seed + DEPLOYMENT             |
+| `apps/*`                  | —                                   | Sin tests; delegan a use cases ya testeados                         |
 
 **Total: 23 archivos de test.** Casos críticos del reto:
 
@@ -424,11 +422,11 @@ El worker usa el container completo incluyendo `ProcessInvoiceRemindersUseCase` 
 
 ### 8.3 Por qué tests en domain/application y no en infrastructure
 
-| Razón | Detalle |
-| ----- | ------- |
-| **Lógica crítica** | Estados, emails y orquestación viven en domain y application |
-| **CI sin dependencias** | Ports mockeados permiten `npm test` sin MongoDB ni Gmail (`.github/workflows/ci.yml`) |
-| **ROI** | Un test de `Invoice.buildReminderPayload()` cubre reglas de negocio que afectan a worker, API y UI |
+| Razón                   | Detalle                                                                                            |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| **Lógica crítica**      | Estados, emails y orquestación viven en domain y application                                       |
+| **CI sin dependencias** | Ports mockeados permiten `npm test` sin MongoDB ni Gmail (`.github/workflows/ci.yml`)              |
+| **ROI**                 | Un test de `Invoice.buildReminderPayload()` cubre reglas de negocio que afectan a worker, API y UI |
 
 **Trade-off documentado:** adaptadores MongoDB/Gmail se validan manualmente. Tests E2E (Playwright/Cypress) quedan fuera del alcance del reto.
 
@@ -594,21 +592,21 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 
 ## 11. API REST
 
-| Método | Ruta | Descripción |
-| ------ | ---- | ----------- |
-| GET | `/api/clients` | Listar clientes |
-| GET | `/api/clients/:id` | Detalle de cliente |
-| POST | `/api/clients` | Crear cliente |
-| PATCH | `/api/clients/:id` | Actualizar nombre/email |
-| DELETE | `/api/clients/:id` | Eliminar (bloqueado si tiene facturas) |
-| GET | `/api/invoices` | Listar facturas con datos del cliente |
-| GET | `/api/invoices/:id` | Detalle de factura |
-| POST | `/api/invoices` | Crear factura (genera `invoiceNumber`) |
-| PATCH | `/api/invoices/:id` | Actualizar concept, amount, dueDate, status |
-| DELETE | `/api/invoices/:id` | Eliminar factura |
-| POST | `/api/overdue/process` | Transicionar facturas vencidas manualmente |
-| POST | `/api/reminders/process` | Ejecutar recordatorios manualmente (todas) |
-| POST | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura |
+| Método | Ruta                                | Descripción                                 |
+| ------ | ----------------------------------- | ------------------------------------------- |
+| GET    | `/api/clients`                      | Listar clientes                             |
+| GET    | `/api/clients/:id`                  | Detalle de cliente                          |
+| POST   | `/api/clients`                      | Crear cliente                               |
+| PATCH  | `/api/clients/:id`                  | Actualizar nombre/email                     |
+| DELETE | `/api/clients/:id`                  | Eliminar (bloqueado si tiene facturas)      |
+| GET    | `/api/invoices`                     | Listar facturas con datos del cliente       |
+| GET    | `/api/invoices/:id`                 | Detalle de factura                          |
+| POST   | `/api/invoices`                     | Crear factura (genera `invoiceNumber`)      |
+| PATCH  | `/api/invoices/:id`                 | Actualizar concept, amount, dueDate, status |
+| DELETE | `/api/invoices/:id`                 | Eliminar factura                            |
+| POST   | `/api/overdue/process`              | Transicionar facturas vencidas manualmente  |
+| POST   | `/api/reminders/process`            | Ejecutar recordatorios manualmente (todas)  |
+| POST   | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura        |
 
 Errores de dominio mapeados a HTTP: validación → 400, not found → 404.
 
@@ -637,4 +635,3 @@ monolegal-challenge/
 ```
 
 ---
-
