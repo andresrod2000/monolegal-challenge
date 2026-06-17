@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" font-family="Arial, Helvetica, sans-serif">
+  <defs><filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter></defs>
+  <rect width="720" height="400" fill="#f8fafc"/>
+  <text x="360" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Dependencias entre paquetes</text>
+  <text x="360" y="52" text-anchor="middle" font-size="12" fill="#64748b">Flechas = depende de (hacia abajo)</text>
+  <g filter="url(#s)"><rect x="260" y="70" width="200" height="44" rx="8" fill="#64748b"/><text x="360" y="98" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">apps (api | worker | frontend)</text></g>
+  <line x1="360" y1="114" x2="360" y2="138" stroke="#475569" stroke-width="2"/>
+  <g filter="url(#s)"><rect x="230" y="140" width="260" height="44" rx="8" fill="#ea580c"/><text x="360" y="168" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">infrastructure (adaptadores + DI)</text></g>
+  <line x1="360" y1="184" x2="360" y2="208" stroke="#475569" stroke-width="2"/>
+  <g filter="url(#s)"><rect x="230" y="210" width="260" height="44" rx="8" fill="#059669"/><text x="360" y="238" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">application (use cases)</text></g>
+  <line x1="360" y1="254" x2="360" y2="278" stroke="#475569" stroke-width="2"/>
+  <g filter="url(#s)"><rect x="250" y="280" width="220" height="44" rx="8" fill="#7c3aed"/><text x="360" y="308" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">domain (entities + ports)</text></g>
+  <line x1="360" y1="324" x2="360" y2="348" stroke="#475569" stroke-width="2"/>
+  <g filter="url(#s)"><rect x="280" y="350" width="160" height="40" rx="8" fill="#334155"/><text x="360" y="375" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">shared (enums)</text></g>
+  <text x="520" y="310" font-size="11" fill="#64748b">domain NO importa</text>
+  <text x="520" y="326" font-size="11" fill="#64748b">application ni infrastructure</text>
+</svg>
