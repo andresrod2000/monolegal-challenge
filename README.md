@@ -22,7 +22,7 @@ Sistema de gestión de facturación, clientes, recordatorios automáticos y dash
 
 ## Documentación
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — Modelo de dominio, API REST, Clean Architecture y SOLID (§6.2)
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — Trazabilidad al reto, diagramas SVG visuales, stack backend/frontend, Clean Architecture, ADRs con justificación de decisiones
 - [DEPLOYMENT.md](./DEPLOYMENT.md) — Guía de despliegue (Hito 5)
 
 ## Estructura del monorepo

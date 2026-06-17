@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#0f172a" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+  <rect width="900" height="620" fill="#f8fafc"/>
+  <text x="450" y="36" text-anchor="middle" font-size="22" font-weight="700" fill="#0f172a">Clean Architecture - Capas</text>
+  <text x="450" y="58" text-anchor="middle" font-size="13" fill="#64748b">Dependencias apuntan hacia el centro (dominio)</text>
+
+  <!-- Presentation -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="80" width="740" height="90" rx="14" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+    <text x="110" y="108" font-size="13" font-weight="700" fill="#1e40af">PRESENTATION</text>
+    <rect x="130" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <text x="220" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Next.js Dashboard</text>
+    <rect x="360" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <text x="450" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Express REST API</text>
+    <rect x="590" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
+    <text x="680" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Worker Cron</text>
+  </g>
+
+  <!-- Application -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="200" width="660" height="100" rx="14" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+    <text x="150" y="228" font-size="13" font-weight="700" fill="#065f46">APPLICATION - Use Cases</text>
+    <rect x="150" y="242" width="140" height="36" rx="6" fill="#fff" stroke="#6ee7b7"/>
+    <text x="220" y="264" text-anchor="middle" font-size="10" fill="#064e3b">ProcessReminders</text>
+    <rect x="310" y="242" width="140" height="36" rx="6" fill="#fff" stroke="#6ee7b7"/>
+    <text x="380" y="264" text-anchor="middle" font-size="10" fill="#064e3b">ProcessOverdue</text>
+    <rect x="470" y="242" width="120" height="36" rx="6" fill="#fff" stroke="#6ee7b7"/>
+    <text x="530" y="264" text-anchor="middle" font-size="10" fill="#064e3b">Invoice CRUD</text>
+    <rect x="610" y="242" width="120" height="36" rx="6" fill="#fff" stroke="#6ee7b7"/>
+    <text x="670" y="264" text-anchor="middle" font-size="10" fill="#064e3b">Client CRUD</text>
+  </g>
+
+  <!-- Domain -->
+  <g filter="url(#shadow)">
+    <rect x="180" y="330" width="540" height="120" rx="14" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>
+    <text x="210" y="358" font-size="13" font-weight="700" fill="#5b21b6">DOMAIN - Reglas de negocio</text>
+    <rect x="210" y="372" width="100" height="56" rx="8" fill="#fff" stroke="#c4b5fd"/>
+    <text x="260" y="396" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">Client</text>
+    <text x="260" y="412" text-anchor="middle" font-size="10" fill="#6d28d9">Entity</text>
+    <rect x="330" y="372" width="100" height="56" rx="8" fill="#fff" stroke="#c4b5fd"/>
+    <text x="380" y="396" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">Invoice</text>
+    <text x="380" y="412" text-anchor="middle" font-size="10" fill="#6d28d9">Entity</text>
+    <rect x="450" y="372" width="250" height="56" rx="8" fill="#fff" stroke="#c4b5fd"/>
+    <text x="575" y="396" text-anchor="middle" font-size="11" font-weight="600" fill="#4c1d95">Ports (interfaces)</text>
+    <text x="575" y="414" text-anchor="middle" font-size="9" fill="#6d28d9">IInvoiceRepo IClientRepo IEmailProvider ILogger</text>
+  </g>
+
+  <!-- Infrastructure -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="480" width="740" height="100" rx="14" fill="#ffedd5" stroke="#ea580c" stroke-width="2"/>
+    <text x="110" y="508" font-size="13" font-weight="700" fill="#9a3412">INFRASTRUCTURE - Adaptadores</text>
+    <rect x="120" y="522" width="150" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
+    <text x="195" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Mongo Repositories</text>
+    <rect x="290" y="522" width="150" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
+    <text x="365" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Gmail / Mock Email</text>
+    <rect x="460" y="522" width="120" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
+    <text x="520" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Pino Logger</text>
+    <rect x="600" y="522" width="180" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
+    <text x="690" y="547" text-anchor="middle" font-size="11" fill="#9a3412">DI Container (createContainer)</text>
+  </g>
+
+  <!-- Dependency arrows -->
+  <line x1="450" y1="170" x2="450" y2="200" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="300" x2="450" y2="330" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="450" y1="450" x2="450" y2="480" stroke="#64748b" stroke-width="2" marker-end="url(#arrow)" stroke-dasharray="6 4"/>
+  <text x="465" y="468" font-size="10" fill="#64748b">implements ports</text>
+</svg>

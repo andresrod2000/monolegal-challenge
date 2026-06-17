@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <filter id="s"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.12"/></filter>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+  </defs>
+  <rect width="960" height="440" fill="#fafafa"/>
+  <text x="480" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Worker asincrono vs API sincrona</text>
+
+  <!-- Async lane -->
+  <rect x="30" y="55" width="440" height="360" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="250" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">PROCESO ASINCRONO (Worker Cron)</text>
+  <g filter="url(#s)"><rect x="60" y="100" width="120" height="40" rx="8" fill="#d97706"/><text x="120" y="125" text-anchor="middle" font-size="11" fill="#fff">Cron 8:00</text></g>
+  <line x1="180" y1="120" x2="210" y2="120" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="210" y="100" width="230" height="40" rx="8" fill="#fff" stroke="#f59e0b"/><text x="325" y="125" text-anchor="middle" font-size="10" fill="#92400e">ProcessOverdueInvoicesUseCase</text></g>
+  <line x1="325" y1="140" x2="325" y2="165" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="210" y="165" width="230" height="40" rx="8" fill="#fff" stroke="#f59e0b"/><text x="325" y="190" text-anchor="middle" font-size="10" fill="#92400e">ProcessInvoiceRemindersUseCase</text></g>
+  <line x1="325" y1="205" x2="325" y2="230" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="250" y="230" width="150" height="36" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="325" y="253" text-anchor="middle" font-size="11" fill="#166534">MongoDB</text></g>
+  <line x1="440" y1="185" x2="470" y2="185" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="470" y="165" width="120" height="40" rx="8" fill="#fef9c3" stroke="#ca8a04"/><text x="530" y="190" text-anchor="middle" font-size="10" fill="#854d0e">Gmail SMTP</text></g>
+
+  <!-- Sync lane -->
+  <rect x="490" y="55" width="440" height="360" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="710" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">GESTION SINCRONA (Dashboard)</text>
+  <g filter="url(#s)"><rect x="520" y="120" width="120" height="40" rx="8" fill="#2563eb"/><text x="580" y="145" text-anchor="middle" font-size="11" fill="#fff">Dashboard</text></g>
+  <line x1="640" y1="140" x2="670" y2="140" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="670" y="120" width="120" height="40" rx="8" fill="#1e40af"/><text x="730" y="145" text-anchor="middle" font-size="11" fill="#fff">Express API</text></g>
+  <line x1="730" y1="160" x2="730" y2="200" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="650" y="200" width="160" height="40" rx="8" fill="#fff" stroke="#93c5fd"/><text x="730" y="225" text-anchor="middle" font-size="10" fill="#1e3a8a">CRUD Use Cases</text></g>
+  <line x1="730" y1="240" x2="730" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
+  <g filter="url(#s)"><rect x="670" y="280" width="120" height="36" rx="8" fill="#dcfce7" stroke="#16a34a"/><text x="730" y="303" text-anchor="middle" font-size="11" fill="#166534">MongoDB</text></g>
+  <text x="710" y="360" text-anchor="middle" font-size="11" fill="#3b82f6">Respuesta JSON inmediata | Sin bloqueo por email</text>
+</svg>
