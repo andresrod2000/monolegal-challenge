@@ -5,7 +5,9 @@ import { ProcessOverdueInvoicesUseCase } from '../process-overdue-invoices.use-c
 
 const TODAY = new Date('2026-06-16');
 
-function createInvoice(overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>): Invoice {
+function createInvoice(
+  overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>,
+): Invoice {
   return Invoice.create({
     clientId: 'client-1',
     invoiceNumber: 'INV-2026-0001',

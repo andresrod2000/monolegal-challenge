@@ -51,13 +51,44 @@ npm run dev:frontend # Puerto 3000
 npm test
 ```
 
+## CI/CD
+
+### CI (Integración continua)
+
+Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — se ejecuta en **pull requests** y **push** a `main`, `develop` y `uat`.
+
+Valida en cada ejecución:
+
+- `npm run lint` — ESLint en el monorepo
+- `npm run format:check` — formato Prettier
+- `npm run build` — compilación de packages, API, worker y frontend
+- `npm test` — tests unitarios Jest (sin MongoDB ni Gmail)
+
+Reproducir localmente:
+
+```bash
+npm run ci
+```
+
+### CD (Despliegue continuo)
+
+Workflow [`.github/workflows/build.yml`](.github/workflows/build.yml) — construye y publica imágenes Docker en EC2.
+
+- Se dispara **solo tras un CI exitoso** en push a `main`, `develop` o `uat`.
+- En PRs corre únicamente el CI; el CD no se ejecuta.
+- `workflow_dispatch` permite un despliegue manual de emergencia sin esperar CI.
+
+Configurar en GitHub (**Settings → Branches**) la regla de protección que exija el check **CI / quality** antes de mergear.
+
+Ver ejecuciones en la pestaña **Actions** del repositorio.
+
 ## Hitos
 
-| Hito | Estado | Descripción |
-|------|--------|-------------|
-| 1 | ✅ | Estructura base, ARCHITECTURE.md, interfaces DI |
-| 2 | ✅ | Dominio, casos de uso, tests Jest |
-| 3 | ✅ | MongoDB, Gmail, seed, worker, API |
-| 4 | ✅ | Dashboard Next.js |
-| 5 | ✅ | Docker, Swarm, Traefik, DEPLOYMENT.md |
-| 6 | ✅ | Entidad Client, CRUD, gestión de emails, facturas con concepto |
+| Hito | Estado | Descripción                                                    |
+| ---- | ------ | -------------------------------------------------------------- |
+| 1    | ✅     | Estructura base, ARCHITECTURE.md, interfaces DI                |
+| 2    | ✅     | Dominio, casos de uso, tests Jest                              |
+| 3    | ✅     | MongoDB, Gmail, seed, worker, API                              |
+| 4    | ✅     | Dashboard Next.js                                              |
+| 5    | ✅     | Docker, Swarm, Traefik, DEPLOYMENT.md                          |
+| 6    | ✅     | Entidad Client, CRUD, gestión de emails, facturas con concepto |

@@ -6,13 +6,13 @@ Pasos exactos para que el equipo técnico de Monolegal levante la infraestructur
 
 ## 1. Prerrequisitos
 
-| Herramienta | Versión mínima | Verificación |
-|-------------|----------------|--------------|
-| Docker | 24+ | `docker --version` |
-| Docker Compose | v2+ | `docker compose version` |
-| Node.js | 20 LTS | `node --version` |
-| npm | 10+ | `npm --version` |
-| Git | 2+ | `git --version` |
+| Herramienta    | Versión mínima | Verificación             |
+| -------------- | -------------- | ------------------------ |
+| Docker         | 24+            | `docker --version`       |
+| Docker Compose | v2+            | `docker compose version` |
+| Node.js        | 20 LTS         | `node --version`         |
+| npm            | 10+            | `npm --version`          |
+| Git            | 2+             | `git --version`          |
 
 Para despliegue con Swarm, el nodo manager debe tener Docker Swarm inicializado.
 
@@ -81,6 +81,7 @@ npm run seed
 ```
 
 Salida esperada:
+
 ```
 Seed completed: 3 clients, 15 invoices inserted.
 Status distribution: { al_dia: 4, primerrecordatorio: 4, segundorecordatorio: 4, desactivado: 3 }
@@ -89,26 +90,29 @@ Status distribution: { al_dia: 4, primerrecordatorio: 4, segundorecordatorio: 4,
 ### 4.5 Iniciar servicios
 
 Terminal 1 — API:
+
 ```bash
 npm run dev:api
 ```
 
 Terminal 2 — Worker:
+
 ```bash
 npm run dev:worker
 ```
 
 Terminal 3 — Frontend:
+
 ```bash
 npm run dev:frontend
 ```
 
 ### 4.6 Verificar
 
-| Recurso | URL |
-|---------|-----|
-| Dashboard | http://localhost:3000 |
-| API Health | http://localhost:4000/health |
+| Recurso      | URL                                |
+| ------------ | ---------------------------------- |
+| Dashboard    | http://localhost:3000              |
+| API Health   | http://localhost:4000/health       |
 | API Facturas | http://localhost:4000/api/invoices |
 
 ---
@@ -122,6 +126,7 @@ npm test
 Pruebas unitarias con Jest en `packages/application`. Usan mocks — no requieren MongoDB ni Gmail.
 
 Cobertura:
+
 ```bash
 npm run test:coverage --prefix packages/application
 ```
@@ -173,6 +178,7 @@ RUN_ON_START=false
 Si la API está fuera del stack, apunta `API_URL` a la URL accesible desde la red del contenedor frontend.
 
 Verificar servicios:
+
 ```bash
 docker stack services monolegal
 docker stack ps monolegal
@@ -192,18 +198,20 @@ docker run --rm --network monolegal_monolegal-net \
 ```
 
 Alternativa local antes del deploy:
+
 ```bash
 MONGODB_URI=mongodb://localhost:27017/monolegal npm run seed
 ```
+
 (con MongoDB del stack expuesto o accesible)
 
 ### 6.6 Acceder a la aplicación
 
-| Servicio | URL |
-|----------|-----|
-| Dashboard | http://monolegal.local |
-| API | http://api.monolegal.local/api/invoices |
-| Traefik Dashboard | http://localhost:8080 |
+| Servicio          | URL                                     |
+| ----------------- | --------------------------------------- |
+| Dashboard         | http://monolegal.local                  |
+| API               | http://api.monolegal.local/api/invoices |
+| Traefik Dashboard | http://localhost:8080                   |
 
 ---
 
@@ -212,11 +220,13 @@ MONGODB_URI=mongodb://localhost:27017/monolegal npm run seed
 Con `RUN_ON_START=true` en el worker, al iniciar procesará facturas inmediatamente.
 
 Ver logs:
+
 ```bash
 docker service logs -f monolegal_worker
 ```
 
 Buscar en logs:
+
 - `Worker job started`
 - `Mock email sent` o `Email sent via Gmail SMTP`
 - `Invoice reminder sent and status updated`
@@ -309,4 +319,4 @@ docker volume rm monolegal_mongo-data  # si se desea limpiar datos
 
 ---
 
-*Documento generado como parte del Hito 5 — Reto del Arquitecto Monolegal.*
+_Documento generado como parte del Hito 5 — Reto del Arquitecto Monolegal._

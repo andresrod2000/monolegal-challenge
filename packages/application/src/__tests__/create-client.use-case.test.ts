@@ -1,4 +1,9 @@
-import { Client, ClientValidationError, type IClientRepository, type ILogger } from '@monolegal/domain';
+import {
+  Client,
+  ClientValidationError,
+  type IClientRepository,
+  type ILogger,
+} from '@monolegal/domain';
 import { CreateClientUseCase } from '../create-client.use-case.js';
 
 function createMockRepository(): jest.Mocked<IClientRepository> {
@@ -49,9 +54,9 @@ describe('CreateClientUseCase', () => {
     const logger = createMockLogger();
     const useCase = new CreateClientUseCase(repository, logger);
 
-    await expect(
-      useCase.execute({ id: 'c1', name: 'Test', email: 'invalid' }),
-    ).rejects.toThrow(ClientValidationError);
+    await expect(useCase.execute({ id: 'c1', name: 'Test', email: 'invalid' })).rejects.toThrow(
+      ClientValidationError,
+    );
     expect(repository.create).not.toHaveBeenCalled();
   });
 });

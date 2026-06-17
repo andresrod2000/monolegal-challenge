@@ -1,5 +1,10 @@
 import 'dotenv/config';
-import { createContainer, disconnectMongoDB, loadConfigFromEnv, toApiDependencies } from '@monolegal/infrastructure';
+import {
+  createContainer,
+  disconnectMongoDB,
+  loadConfigFromEnv,
+  toApiDependencies,
+} from '@monolegal/infrastructure';
 import { createApp } from './app.js';
 
 const PORT = Number(process.env.API_PORT ?? 4000);

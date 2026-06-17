@@ -1,4 +1,9 @@
-import { Client, ClientNotFoundError, type IClientRepository, type ILogger } from '@monolegal/domain';
+import {
+  Client,
+  ClientNotFoundError,
+  type IClientRepository,
+  type ILogger,
+} from '@monolegal/domain';
 import { UpdateClientUseCase } from '../update-client.use-case.js';
 
 function createMockLogger(): jest.Mocked<ILogger> {
@@ -26,7 +31,11 @@ describe('UpdateClientUseCase', () => {
       findById: jest.fn(async () => existing),
       create: jest.fn(),
       update: jest.fn(async (_id, props) =>
-        Client.create({ id: 'client-1', name: props.name ?? existing.name, email: props.email ?? existing.email }),
+        Client.create({
+          id: 'client-1',
+          name: props.name ?? existing.name,
+          email: props.email ?? existing.email,
+        }),
       ),
       delete: jest.fn(),
       exists: jest.fn(),

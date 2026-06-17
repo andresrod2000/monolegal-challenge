@@ -1,4 +1,9 @@
-import { Invoice, InvoiceNotFoundError, type IInvoiceRepository, type ILogger } from '@monolegal/domain';
+import {
+  Invoice,
+  InvoiceNotFoundError,
+  type IInvoiceRepository,
+  type ILogger,
+} from '@monolegal/domain';
 import { InvoiceStatus } from '@monolegal/shared';
 import { UpdateInvoiceUseCase } from '../update-invoice.use-case.js';
 

@@ -6,8 +6,7 @@ interface StatusFilterBarProps {
   onChange: (status: StatusFilter) => void;
 }
 
-const chipBase =
-  'rounded-sm border px-3 py-1.5 text-sm transition-colors';
+const chipBase = 'rounded-sm border px-3 py-1.5 text-sm transition-colors';
 
 const chipActive = 'border-brand-dark bg-brand-dark text-white';
 const chipInactive =

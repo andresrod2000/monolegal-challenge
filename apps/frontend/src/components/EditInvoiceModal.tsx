@@ -110,7 +110,10 @@ function EditInvoiceForm({ invoice, onSubmit, onClose }: EditInvoiceFormProps) {
 interface EditInvoiceModalProps {
   invoice: Invoice | null;
   onClose: () => void;
-  onSubmit: (id: string, data: EditInvoiceFormProps['onSubmit'] extends (d: infer D) => unknown ? D : never) => Promise<void>;
+  onSubmit: (
+    id: string,
+    data: EditInvoiceFormProps['onSubmit'] extends (d: infer D) => unknown ? D : never,
+  ) => Promise<void>;
 }
 
 export function EditInvoiceModal({ invoice, onClose, onSubmit }: EditInvoiceModalProps) {

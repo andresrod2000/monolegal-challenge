@@ -15,7 +15,9 @@ const defaultClient = Client.create({
   email: 'billing@acme.com',
 });
 
-function createInvoice(overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>): Invoice {
+function createInvoice(
+  overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>,
+): Invoice {
   return Invoice.create({
     clientId: 'client-1',
     invoiceNumber: 'INV-2026-0001',
@@ -30,9 +32,7 @@ function createMockRepository(invoices: Invoice[] = []): jest.Mocked<IInvoiceRep
   const store = invoices.map((inv) => inv.toProps());
   return {
     findByStatus: jest.fn(async (statuses) =>
-      store
-        .filter((inv) => statuses.includes(inv.status))
-        .map((props) => Invoice.fromProps(props)),
+      store.filter((inv) => statuses.includes(inv.status)).map((props) => Invoice.fromProps(props)),
     ),
     findByStatusAndDueDateBefore: jest.fn(),
     findAllSummaries: jest.fn(),

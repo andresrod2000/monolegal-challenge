@@ -1,4 +1,10 @@
-import { ClientNotFoundError, Invoice, type IClientRepository, type IInvoiceRepository, type ILogger } from '@monolegal/domain';
+import {
+  ClientNotFoundError,
+  Invoice,
+  type IClientRepository,
+  type IInvoiceRepository,
+  type ILogger,
+} from '@monolegal/domain';
 import { InvoiceStatus } from '@monolegal/shared';
 import { CreateInvoiceUseCase } from '../create-invoice.use-case.js';
 

@@ -45,10 +45,7 @@ export function sortInvoices(invoices: Invoice[], sortState: InvoiceSortState): 
   return sorted;
 }
 
-export function toggleSort(
-  current: InvoiceSortState,
-  field: InvoiceSortField,
-): InvoiceSortState {
+export function toggleSort(current: InvoiceSortState, field: InvoiceSortField): InvoiceSortState {
   if (current.field === field) {
     return {
       field,

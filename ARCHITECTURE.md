@@ -75,13 +75,13 @@ Contiene las reglas de negocio puras, independientes de frameworks y bases de da
 
 Orquesta la lógica de negocio aplicando el **Principio de Responsabilidad Única (SRP)**:
 
-| Caso de uso | Responsabilidad |
-|-------------|-----------------|
-| `ProcessOverdueInvoicesUseCase` | Transicionar facturas `al_dia` vencidas a `primerrecordatorio` |
-| `ProcessInvoiceRemindersUseCase` | Procesar recordatorios, resolver email del cliente y transicionar estados |
-| `GetInvoicesSummaryUseCase` | Listar resumen de facturas con datos del cliente (join) |
-| `GetInvoiceByIdUseCase` / `CreateInvoiceUseCase` / `UpdateInvoiceUseCase` / `DeleteInvoiceUseCase` | CRUD de facturas |
-| `GetClientsUseCase` / `GetClientByIdUseCase` / `CreateClientUseCase` / `UpdateClientUseCase` / `DeleteClientUseCase` | CRUD de clientes |
+| Caso de uso                                                                                                          | Responsabilidad                                                           |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `ProcessOverdueInvoicesUseCase`                                                                                      | Transicionar facturas `al_dia` vencidas a `primerrecordatorio`            |
+| `ProcessInvoiceRemindersUseCase`                                                                                     | Procesar recordatorios, resolver email del cliente y transicionar estados |
+| `GetInvoicesSummaryUseCase`                                                                                          | Listar resumen de facturas con datos del cliente (join)                   |
+| `GetInvoiceByIdUseCase` / `CreateInvoiceUseCase` / `UpdateInvoiceUseCase` / `DeleteInvoiceUseCase`                   | CRUD de facturas                                                          |
+| `GetClientsUseCase` / `GetClientByIdUseCase` / `CreateClientUseCase` / `UpdateClientUseCase` / `DeleteClientUseCase` | CRUD de clientes                                                          |
 
 Reciben dependencias **por inyección** (constructor), nunca instancian adaptadores concretos.
 
@@ -148,11 +148,11 @@ sequenceDiagram
 
 ### 3.3 Beneficios
 
-| Aspecto | Beneficio |
-|---------|-----------|
-| **Resiliencia** | Fallo en envío de email no afecta la API |
-| **Escalabilidad** | Worker y API escalan de forma independiente en Docker Swarm |
-| **SRP** | Cada servicio tiene una única razón para cambiar |
+| Aspecto            | Beneficio                                                         |
+| ------------------ | ----------------------------------------------------------------- |
+| **Resiliencia**    | Fallo en envío de email no afecta la API                          |
+| **Escalabilidad**  | Worker y API escalan de forma independiente en Docker Swarm       |
+| **SRP**            | Cada servicio tiene una única razón para cambiar                  |
 | **Observabilidad** | Logs separados por servicio (`service: api` vs `service: worker`) |
 
 ---
@@ -251,13 +251,13 @@ El worker procesa cada factura en este orden:
 
 ## 6.2 SOLID en el código
 
-| Principio | Dónde se aplica |
-|-----------|-----------------|
-| **SRP** | Un caso de uso = una acción de negocio; routers solo enrutan HTTP; mappers solo serializan DTOs |
-| **OCP** | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso |
-| **LSP** | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider` |
-| **ISP** | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente |
-| **DIP** | Application depende de ports en domain; `ProcessOverdueInvoicesUseCase` y `ProcessInvoiceRemindersUseCase` dependen de `IInvoiceRepository` |
+| Principio | Dónde se aplica                                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **SRP**   | Un caso de uso = una acción de negocio; routers solo enrutan HTTP; mappers solo serializan DTOs                                             |
+| **OCP**   | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso                          |
+| **LSP**   | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider`                                                        |
+| **ISP**   | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente              |
+| **DIP**   | Application depende de ports en domain; `ProcessOverdueInvoicesUseCase` y `ProcessInvoiceRemindersUseCase` dependen de `IInvoiceRepository` |
 
 ### Dependencias entre paquetes
 
@@ -311,12 +311,12 @@ erDiagram
 
 ### 7.2 Estados de factura
 
-| Estado | Valor | Descripción |
-|--------|-------|-------------|
-| Al día | `al_dia` | Factura vigente, sin acción |
-| Primer recordatorio | `primerrecordatorio` | Pendiente de envío de 1er aviso |
-| Segundo recordatorio | `segundorecordatorio` | Pendiente de envío de 2do aviso |
-| Desactivado | `desactivado` | Servicio desactivado tras 2do aviso |
+| Estado               | Valor                 | Descripción                         |
+| -------------------- | --------------------- | ----------------------------------- |
+| Al día               | `al_dia`              | Factura vigente, sin acción         |
+| Primer recordatorio  | `primerrecordatorio`  | Pendiente de envío de 1er aviso     |
+| Segundo recordatorio | `segundorecordatorio` | Pendiente de envío de 2do aviso     |
+| Desactivado          | `desactivado`         | Servicio desactivado tras 2do aviso |
 
 ### Transiciones (Worker)
 
@@ -336,21 +336,21 @@ La lógica vive en la entidad `Invoice` (`isOverdueAt`, `shouldTransitionToFirst
 
 ## 7.3 API REST
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/clients` | Listar clientes |
-| GET | `/api/clients/:id` | Detalle de cliente |
-| POST | `/api/clients` | Crear cliente |
-| PATCH | `/api/clients/:id` | Actualizar nombre/email |
-| DELETE | `/api/clients/:id` | Eliminar (bloqueado si tiene facturas) |
-| GET | `/api/invoices` | Listar facturas con datos del cliente |
-| GET | `/api/invoices/:id` | Detalle de factura |
-| POST | `/api/invoices` | Crear factura (genera `invoiceNumber`) |
-| PATCH | `/api/invoices/:id` | Actualizar concept, amount, dueDate, status |
-| DELETE | `/api/invoices/:id` | Eliminar factura |
-| POST | `/api/overdue/process` | Transicionar facturas vencidas manualmente (`al_dia` → `primerrecordatorio`) |
-| POST | `/api/reminders/process` | Ejecutar recordatorios manualmente (todas las facturas elegibles) |
-| POST | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura específica |
+| Método | Ruta                                | Descripción                                                                  |
+| ------ | ----------------------------------- | ---------------------------------------------------------------------------- |
+| GET    | `/api/clients`                      | Listar clientes                                                              |
+| GET    | `/api/clients/:id`                  | Detalle de cliente                                                           |
+| POST   | `/api/clients`                      | Crear cliente                                                                |
+| PATCH  | `/api/clients/:id`                  | Actualizar nombre/email                                                      |
+| DELETE | `/api/clients/:id`                  | Eliminar (bloqueado si tiene facturas)                                       |
+| GET    | `/api/invoices`                     | Listar facturas con datos del cliente                                        |
+| GET    | `/api/invoices/:id`                 | Detalle de factura                                                           |
+| POST   | `/api/invoices`                     | Crear factura (genera `invoiceNumber`)                                       |
+| PATCH  | `/api/invoices/:id`                 | Actualizar concept, amount, dueDate, status                                  |
+| DELETE | `/api/invoices/:id`                 | Eliminar factura                                                             |
+| POST   | `/api/overdue/process`              | Transicionar facturas vencidas manualmente (`al_dia` → `primerrecordatorio`) |
+| POST   | `/api/reminders/process`            | Ejecutar recordatorios manualmente (todas las facturas elegibles)            |
+| POST   | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura específica                              |
 
 Errores de dominio mapeados a HTTP: validación → 400, not found → 404.
 
@@ -390,15 +390,15 @@ monolegal-challenge/
 
 ## 10. Decisiones técnicas registradas
 
-| Decisión | Alternativa descartada | Justificación |
-|----------|------------------------|---------------|
-| Monorepo (npm) | Multi-repo | Desarrollo coordinado, tipos compartidos |
-| Express | Fastify/NestJS | Simplicidad; CRUD REST sin sobre-ingeniería |
-| Mongoose | Driver nativo | Schema validation, índices declarativos |
-| DI manual | Inversify | Menor complejidad, mismo beneficio SOLID |
-| Gmail SMTP | SendGrid/Resend | Requerimiento del equipo (cuenta Gmail propia) |
-| Pino | Winston | Mejor rendimiento, JSON nativo |
-| node-cron | Bull/BullMQ | No se requiere cola persistente para cron diario |
+| Decisión       | Alternativa descartada | Justificación                                    |
+| -------------- | ---------------------- | ------------------------------------------------ |
+| Monorepo (npm) | Multi-repo             | Desarrollo coordinado, tipos compartidos         |
+| Express        | Fastify/NestJS         | Simplicidad; CRUD REST sin sobre-ingeniería      |
+| Mongoose       | Driver nativo          | Schema validation, índices declarativos          |
+| DI manual      | Inversify              | Menor complejidad, mismo beneficio SOLID         |
+| Gmail SMTP     | SendGrid/Resend        | Requerimiento del equipo (cuenta Gmail propia)   |
+| Pino           | Winston                | Mejor rendimiento, JSON nativo                   |
+| node-cron      | Bull/BullMQ            | No se requiere cola persistente para cron diario |
 
 ---
 
@@ -411,4 +411,4 @@ monolegal-challenge/
 
 ---
 
-*Documento actualizado — sistema de gestión de facturación con entidad Client, CRUD completo y tests unitarios.*
+_Documento actualizado — sistema de gestión de facturación con entidad Client, CRUD completo y tests unitarios._

@@ -1,9 +1,6 @@
 const API_URL = process.env.API_URL ?? 'http://localhost:4000';
 
-async function proxyRequest(
-  path: string,
-  init?: RequestInit,
-): Promise<Response> {
+async function proxyRequest(path: string, init?: RequestInit): Promise<Response> {
   const res = await fetch(`${API_URL}${path}`, { cache: 'no-store', ...init });
   const body = await res.text();
   return new Response(body, {

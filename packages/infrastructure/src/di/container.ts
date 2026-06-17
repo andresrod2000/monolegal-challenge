@@ -67,11 +67,7 @@ export async function createContainer(config: ContainerConfig): Promise<Containe
   const getClientByIdUseCase = new GetClientByIdUseCase(clientRepository, logger);
   const createClientUseCase = new CreateClientUseCase(clientRepository, logger);
   const updateClientUseCase = new UpdateClientUseCase(clientRepository, logger);
-  const deleteClientUseCase = new DeleteClientUseCase(
-    clientRepository,
-    invoiceRepository,
-    logger,
-  );
+  const deleteClientUseCase = new DeleteClientUseCase(clientRepository, invoiceRepository, logger);
 
   logger.info('Container initialized', {
     emailProvider: config.emailProvider,
