@@ -22,6 +22,30 @@ function removeIfExists(linkPath) {
   }
 }
 
+function removeNestedMonolegalDeps(linkPath) {
+  const nested = path.join(linkPath, 'node_modules', '@monolegal');
+  if (fs.existsSync(nested)) {
+    fs.rmSync(nested, { recursive: true, force: true });
+  }
+}
+
+function copyWorkspacePackage(target, linkPath, relativeTarget, relativeLink) {
+  if (!fs.existsSync(path.join(target, 'dist'))) {
+    throw new Error(`Missing dist/ in ${relativeTarget}. Run npm run build:packages first.`);
+  }
+
+  fs.cpSync(target, linkPath, { recursive: true });
+
+  const srcPath = path.join(linkPath, 'src');
+  if (fs.existsSync(srcPath)) {
+    fs.rmSync(srcPath, { recursive: true, force: true });
+  }
+
+  removeNestedMonolegalDeps(linkPath);
+
+  console.log(`Copied ${relativeLink} <- ${relativeTarget} (without src, nested @monolegal deps)`);
+}
+
 function linkOrCopy(target, linkPath, relativeTarget, relativeLink) {
   removeIfExists(linkPath);
   fs.mkdirSync(path.dirname(linkPath), { recursive: true });
@@ -32,7 +56,7 @@ function linkOrCopy(target, linkPath, relativeTarget, relativeLink) {
       console.log(`Linked ${relativeLink} -> ${relativeTarget}`);
       return;
     } catch {
-      // Windows sin permisos de symlink: copiar el paquete.
+      // Windows sin permisos de symlink: copiar solo artefactos compilados.
     }
   } else {
     try {
@@ -44,8 +68,7 @@ function linkOrCopy(target, linkPath, relativeTarget, relativeLink) {
     }
   }
 
-  fs.cpSync(target, linkPath, { recursive: true });
-  console.log(`Copied ${relativeLink} <- ${relativeTarget}`);
+  copyWorkspacePackage(target, linkPath, relativeTarget, relativeLink);
 }
 
 for (const [relativeTarget, relativeLink] of links) {

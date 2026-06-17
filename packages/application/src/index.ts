@@ -1,3 +1,15 @@
 export { ProcessInvoiceRemindersUseCase } from './process-invoice-reminders.use-case.js';
 export type { ProcessInvoiceRemindersResult } from './process-invoice-reminders.use-case.js';
 export { GetInvoicesSummaryUseCase } from './get-invoices-summary.use-case.js';
+export { GetInvoiceByIdUseCase } from './get-invoice-by-id.use-case.js';
+export { CreateInvoiceUseCase } from './create-invoice.use-case.js';
+export type { CreateInvoiceInput } from './create-invoice.use-case.js';
+export { UpdateInvoiceUseCase } from './update-invoice.use-case.js';
+export { DeleteInvoiceUseCase } from './delete-invoice.use-case.js';
+export { GetClientsUseCase } from './get-clients.use-case.js';
+export { GetClientByIdUseCase } from './get-client-by-id.use-case.js';
+export { CreateClientUseCase } from './create-client.use-case.js';
+export type { CreateClientInput } from './create-client.use-case.js';
+export { UpdateClientUseCase } from './update-client.use-case.js';
+export type { UpdateClientInput } from './update-client.use-case.js';
+export { DeleteClientUseCase } from './delete-client.use-case.js';

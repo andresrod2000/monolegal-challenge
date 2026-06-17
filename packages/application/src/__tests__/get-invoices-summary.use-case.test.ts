@@ -9,6 +9,9 @@ describe('GetInvoicesSummaryUseCase', () => {
         id: '1',
         clientId: 'c1',
         clientName: 'Acme Corp',
+        clientEmail: 'billing@acme.com',
+        invoiceNumber: 'INV-2026-0001',
+        concept: 'Suscripción SaaS',
         amount: 100000,
         dueDate: new Date('2026-05-01'),
         status: InvoiceStatus.AL_DIA,
@@ -17,8 +20,14 @@ describe('GetInvoicesSummaryUseCase', () => {
 
     const repository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
-      findAll: jest.fn(async () => summaries),
+      findAllSummaries: jest.fn(async () => summaries),
+      findById: jest.fn(),
+      findByClientId: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       updateStatus: jest.fn(),
+      countByYear: jest.fn(),
     };
 
     const logger: jest.Mocked<ILogger> = {
@@ -33,6 +42,6 @@ describe('GetInvoicesSummaryUseCase', () => {
     const result = await useCase.execute();
 
     expect(result).toEqual(summaries);
-    expect(repository.findAll).toHaveBeenCalledTimes(1);
+    expect(repository.findAllSummaries).toHaveBeenCalledTimes(1);
   });
 });

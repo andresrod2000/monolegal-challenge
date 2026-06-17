@@ -1,14 +1,20 @@
 import type { InvoiceStatus } from '@monolegal/shared';
 
+export interface SeedClientInput {
+  id: string;
+  name: string;
+  email: string;
+}
+
 export interface SeedInvoiceInput {
   clientId: string;
-  clientName: string;
-  clientEmail: string;
+  invoiceNumber: string;
+  concept: string;
   amount: number;
   dueDate: Date;
   status: InvoiceStatus;
 }
 
 export interface IInvoiceSeeder {
-  resetAndSeed(invoices: SeedInvoiceInput[]): Promise<number>;
+  resetAndSeed(clients: SeedClientInput[], invoices: SeedInvoiceInput[]): Promise<number>;
 }

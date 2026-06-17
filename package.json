@@ -9,7 +9,7 @@
     "test": "npm run test --prefix packages/domain && npm run test --prefix packages/application",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "seed": "tsx scripts/seed.ts",
+    "seed": "npm run build:packages && node scripts/link-workspaces.js && tsx scripts/seed.ts",
     "postinstall": "node scripts/install-workspaces.js",
     "dev:api": "npm run dev --prefix apps/api",
     "dev:worker": "npm run dev --prefix apps/worker",

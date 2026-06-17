@@ -1,5 +1,6 @@
-import type { IEmailProvider, IInvoiceRepository, ILogger } from '@monolegal/domain';
+import type { IClientRepository, IEmailProvider, IInvoiceRepository, ILogger } from '@monolegal/domain';
 import type { Invoice } from '@monolegal/domain';
+import { ClientNotFoundError } from '@monolegal/domain';
 import { REMINDER_STATUSES } from '@monolegal/shared';
 
 export interface ProcessInvoiceRemindersResult {
@@ -10,6 +11,7 @@ export interface ProcessInvoiceRemindersResult {
 export class ProcessInvoiceRemindersUseCase {
   constructor(
     private readonly invoiceRepository: IInvoiceRepository,
+    private readonly clientRepository: IClientRepository,
     private readonly emailProvider: IEmailProvider,
     private readonly logger: ILogger,
   ) {}
@@ -32,7 +34,7 @@ export class ProcessInvoiceRemindersUseCase {
         failed++;
         this.logger.error('Failed to process invoice reminder', {
           invoiceId: invoice.id,
-          clientName: invoice.clientName,
+          clientId: invoice.clientId,
           status: invoice.status,
           error: error instanceof Error ? error.message : String(error),
         });
@@ -45,10 +47,15 @@ export class ProcessInvoiceRemindersUseCase {
   }
 
   private async processInvoice(invoice: Invoice): Promise<void> {
-    const { email, nextStatus } = invoice.buildReminderPayload();
+    const client = await this.clientRepository.findById(invoice.clientId);
+    if (!client) {
+      throw new ClientNotFoundError(`Client not found for invoice ${invoice.id}: ${invoice.clientId}`);
+    }
+
+    const { email, nextStatus } = invoice.buildReminderPayload(client.name);
 
     await this.emailProvider.sendReminder({
-      to: invoice.clientEmail,
+      to: client.email,
       subject: email.subject,
       body: email.body,
     });
@@ -58,7 +65,7 @@ export class ProcessInvoiceRemindersUseCase {
     } catch (error) {
       this.logger.warn('Email sent but status update failed', {
         invoiceId: invoice.id,
-        clientName: invoice.clientName,
+        clientId: invoice.clientId,
         previousStatus: invoice.status,
         targetStatus: nextStatus,
         emailAlreadySent: true,
@@ -69,7 +76,8 @@ export class ProcessInvoiceRemindersUseCase {
 
     this.logger.info('Invoice reminder sent and status updated', {
       invoiceId: invoice.id,
-      clientName: invoice.clientName,
+      clientId: invoice.clientId,
+      clientEmail: client.email,
       previousStatus: invoice.status,
       newStatus: nextStatus,
     });

@@ -1,13 +1,25 @@
-import { Invoice } from '@monolegal/domain';
-import type { IEmailProvider, IInvoiceRepository, ILogger, InvoiceProps } from '@monolegal/domain';
+import { Client, Invoice } from '@monolegal/domain';
+import type {
+  IClientRepository,
+  IEmailProvider,
+  IInvoiceRepository,
+  ILogger,
+  InvoiceProps,
+} from '@monolegal/domain';
 import { InvoiceStatus } from '@monolegal/shared';
 import { ProcessInvoiceRemindersUseCase } from '../process-invoice-reminders.use-case.js';
+
+const defaultClient = Client.create({
+  id: 'client-1',
+  name: 'Acme Corp',
+  email: 'billing@acme.com',
+});
 
 function createInvoice(overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>): Invoice {
   return Invoice.create({
     clientId: 'client-1',
-    clientName: 'Acme Corp',
-    clientEmail: 'billing@acme.com',
+    invoiceNumber: 'INV-2026-0001',
+    concept: 'Suscripción SaaS',
     amount: 150000,
     dueDate: new Date('2026-05-01'),
     ...overrides,
@@ -22,11 +34,30 @@ function createMockRepository(invoices: Invoice[] = []): jest.Mocked<IInvoiceRep
         .filter((inv) => statuses.includes(inv.status))
         .map((props) => Invoice.fromProps(props)),
     ),
-    findAll: jest.fn(async () => store),
+    findAllSummaries: jest.fn(),
+    findById: jest.fn(),
+    findByClientId: jest.fn(),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
     updateStatus: jest.fn(async (id, status) => {
       const invoice = store.find((inv) => inv.id === id);
       if (invoice) invoice.status = status;
     }),
+    countByYear: jest.fn(),
+  };
+}
+
+function createMockClientRepository(
+  clients: Client[] = [defaultClient],
+): jest.Mocked<IClientRepository> {
+  return {
+    findAll: jest.fn(),
+    findById: jest.fn(async (id) => clients.find((c) => c.id === id) ?? null),
+    create: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
+    exists: jest.fn(),
   };
 }
 
@@ -59,10 +90,16 @@ describe('ProcessInvoiceRemindersUseCase', () => {
       status: InvoiceStatus.PRIMER_RECORDATORIO,
     });
     const repository = createMockRepository([invoice]);
+    const clientRepository = createMockClientRepository();
     const emailProvider = createMockEmailProvider();
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 1, failed: 0 });
@@ -78,16 +115,50 @@ describe('ProcessInvoiceRemindersUseCase', () => {
     );
   });
 
+  it('should use updated client email from repository', async () => {
+    const invoice = createInvoice({
+      id: 'inv-1',
+      status: InvoiceStatus.PRIMER_RECORDATORIO,
+    });
+    const repository = createMockRepository([invoice]);
+    const updatedClient = Client.create({
+      id: 'client-1',
+      name: 'Acme Corp',
+      email: 'newbilling@acme.com',
+    });
+    const clientRepository = createMockClientRepository([updatedClient]);
+    const emailProvider = createMockEmailProvider();
+    const logger = createMockLogger();
+
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
+    await useCase.execute();
+
+    expect(emailProvider.sendReminder).toHaveBeenCalledWith(
+      expect.objectContaining({ to: 'newbilling@acme.com' }),
+    );
+  });
+
   it('should process second reminder and update status to desactivado', async () => {
     const invoice = createInvoice({
       id: 'inv-2',
       status: InvoiceStatus.SEGUNDO_RECORDATORIO,
     });
     const repository = createMockRepository([invoice]);
+    const clientRepository = createMockClientRepository();
     const emailProvider = createMockEmailProvider();
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 1, failed: 0 });
@@ -101,10 +172,16 @@ describe('ProcessInvoiceRemindersUseCase', () => {
 
   it('should return zero processed when no invoices need reminders', async () => {
     const repository = createMockRepository([]);
+    const clientRepository = createMockClientRepository();
     const emailProvider = createMockEmailProvider();
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 0, failed: 0 });
@@ -113,23 +190,40 @@ describe('ProcessInvoiceRemindersUseCase', () => {
   });
 
   it('should continue processing other invoices when one email fails', async () => {
+    const failClient = Client.create({
+      id: 'client-fail',
+      name: 'Fail Corp',
+      email: 'fail@acme.com',
+    });
+    const okClient = Client.create({
+      id: 'client-ok',
+      name: 'Ok Corp',
+      email: 'ok@acme.com',
+    });
+
     const invoices = [
       createInvoice({
         id: 'inv-fail',
-        clientEmail: 'fail@acme.com',
+        clientId: 'client-fail',
         status: InvoiceStatus.PRIMER_RECORDATORIO,
       }),
       createInvoice({
         id: 'inv-ok',
-        clientEmail: 'ok@acme.com',
+        clientId: 'client-ok',
         status: InvoiceStatus.PRIMER_RECORDATORIO,
       }),
     ];
     const repository = createMockRepository(invoices);
+    const clientRepository = createMockClientRepository([failClient, okClient]);
     const emailProvider = createMockEmailProvider(['fail@acme.com']);
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 1, failed: 1 });
@@ -150,10 +244,16 @@ describe('ProcessInvoiceRemindersUseCase', () => {
       createInvoice({ id: 'inv-b', status: InvoiceStatus.SEGUNDO_RECORDATORIO }),
     ];
     const repository = createMockRepository(invoices);
+    const clientRepository = createMockClientRepository();
     const emailProvider = createMockEmailProvider();
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 2, failed: 0 });
@@ -171,10 +271,16 @@ describe('ProcessInvoiceRemindersUseCase', () => {
     });
     const repository = createMockRepository([invoice]);
     repository.updateStatus.mockRejectedValue(new Error('DB unavailable'));
+    const clientRepository = createMockClientRepository();
     const emailProvider = createMockEmailProvider();
     const logger = createMockLogger();
 
-    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
     const result = await useCase.execute();
 
     expect(result).toEqual({ processed: 0, failed: 1 });

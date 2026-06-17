@@ -1,14 +1,12 @@
 import cors from 'cors';
 import express, { type Express } from 'express';
-import type { GetInvoicesSummaryUseCase } from '@monolegal/application';
-import type { ILogger } from '@monolegal/domain';
+import type { ApiDependencies } from '@monolegal/infrastructure';
 import { createErrorHandler, notFoundHandler } from './middleware/error-handler.js';
 import { createRequestContextMiddleware } from './middleware/request-context.js';
+import { createClientsRouter } from './routes/clients.routes.js';
 import { createInvoicesRouter } from './routes/invoices.routes.js';
 
-export interface ApiAppDependencies {
-  getInvoicesSummaryUseCase: GetInvoicesSummaryUseCase;
-  logger: ILogger;
+export interface ApiAppDependencies extends ApiDependencies {
   corsOrigin: string;
 }
 
@@ -23,7 +21,27 @@ export function createApp(deps: ApiAppDependencies): Express {
     res.json({ status: 'ok', service: 'api', timestamp: new Date().toISOString() });
   });
 
-  app.use('/api/invoices', createInvoicesRouter(deps.getInvoicesSummaryUseCase));
+  app.use(
+    '/api/clients',
+    createClientsRouter({
+      getClientsUseCase: deps.getClientsUseCase,
+      getClientByIdUseCase: deps.getClientByIdUseCase,
+      createClientUseCase: deps.createClientUseCase,
+      updateClientUseCase: deps.updateClientUseCase,
+      deleteClientUseCase: deps.deleteClientUseCase,
+    }),
+  );
+
+  app.use(
+    '/api/invoices',
+    createInvoicesRouter({
+      getInvoicesSummaryUseCase: deps.getInvoicesSummaryUseCase,
+      getInvoiceByIdUseCase: deps.getInvoiceByIdUseCase,
+      createInvoiceUseCase: deps.createInvoiceUseCase,
+      updateInvoiceUseCase: deps.updateInvoiceUseCase,
+      deleteInvoiceUseCase: deps.deleteInvoiceUseCase,
+    }),
+  );
 
   app.use(notFoundHandler);
   app.use(createErrorHandler(deps.logger));
