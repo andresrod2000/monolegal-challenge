@@ -4,6 +4,7 @@ import type { InvoiceProps, InvoiceSummary, InvoiceUpdateProps } from '../entiti
 
 export interface IInvoiceRepository {
   findByStatus(statuses: InvoiceStatus[]): Promise<Invoice[]>;
+  findByStatusAndDueDateBefore(status: InvoiceStatus, dueDateBefore: Date): Promise<Invoice[]>;
   findAllSummaries(): Promise<InvoiceSummary[]>;
   findById(id: string): Promise<Invoice | null>;
   findByClientId(clientId: string): Promise<Invoice[]>;

@@ -20,6 +20,7 @@ describe('GetInvoicesSummaryUseCase', () => {
 
     const repository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(async () => summaries),
       findById: jest.fn(),
       findByClientId: jest.fn(),

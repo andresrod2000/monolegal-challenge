@@ -28,6 +28,7 @@ describe('CreateInvoiceUseCase', () => {
 
     const invoiceRepository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(),
       findByClientId: jest.fn(),
@@ -74,6 +75,7 @@ describe('CreateInvoiceUseCase', () => {
   it('should throw ClientNotFoundError when client does not exist', async () => {
     const invoiceRepository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(),
       findByClientId: jest.fn(),

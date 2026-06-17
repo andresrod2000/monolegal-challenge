@@ -34,6 +34,7 @@ describe('UpdateInvoiceUseCase', () => {
 
     const repository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(async () => existing),
       findByClientId: jest.fn(),
@@ -54,6 +55,7 @@ describe('UpdateInvoiceUseCase', () => {
   it('should throw InvoiceNotFoundError when invoice does not exist', async () => {
     const repository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(async () => null),
       findByClientId: jest.fn(),

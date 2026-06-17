@@ -8,6 +8,7 @@ import {
   GetInvoiceByIdUseCase,
   GetInvoicesSummaryUseCase,
   ProcessInvoiceRemindersUseCase,
+  ProcessOverdueInvoicesUseCase,
   UpdateClientUseCase,
   UpdateInvoiceUseCase,
 } from '@monolegal/application';
@@ -39,6 +40,11 @@ export async function createContainer(config: ContainerConfig): Promise<Containe
           logger,
         )
       : new MockEmailProvider(logger);
+
+  const processOverdueInvoicesUseCase = new ProcessOverdueInvoicesUseCase(
+    invoiceRepository,
+    logger,
+  );
 
   const processInvoiceRemindersUseCase = new ProcessInvoiceRemindersUseCase(
     invoiceRepository,
@@ -78,6 +84,7 @@ export async function createContainer(config: ContainerConfig): Promise<Containe
     invoiceRepository,
     invoiceSeeder,
     emailProvider,
+    processOverdueInvoicesUseCase,
     processInvoiceRemindersUseCase,
     getInvoicesSummaryUseCase,
     getInvoiceByIdUseCase,

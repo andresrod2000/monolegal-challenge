@@ -47,6 +47,51 @@ describe('Invoice.create', () => {
   });
 });
 
+describe('Invoice overdue transitions', () => {
+  const today = new Date('2026-06-16');
+
+  it('should not be overdue on the due date', () => {
+    const invoice = Invoice.create({
+      ...validProps,
+      dueDate: new Date('2026-06-16'),
+      status: InvoiceStatus.AL_DIA,
+    });
+    expect(invoice.isOverdueAt(today)).toBe(false);
+    expect(invoice.shouldTransitionToFirstReminder(today)).toBe(false);
+  });
+
+  it('should be overdue the day after the due date', () => {
+    const invoice = Invoice.create({
+      ...validProps,
+      dueDate: new Date('2026-06-15'),
+      status: InvoiceStatus.AL_DIA,
+    });
+    expect(invoice.isOverdueAt(today)).toBe(true);
+    expect(invoice.shouldTransitionToFirstReminder(today)).toBe(true);
+    expect(invoice.getStatusAfterBecomingOverdue()).toBe(InvoiceStatus.PRIMER_RECORDATORIO);
+  });
+
+  it('should not be overdue when due date is in the future', () => {
+    const invoice = Invoice.create({
+      ...validProps,
+      dueDate: new Date('2026-06-20'),
+      status: InvoiceStatus.AL_DIA,
+    });
+    expect(invoice.isOverdueAt(today)).toBe(false);
+    expect(invoice.shouldTransitionToFirstReminder(today)).toBe(false);
+  });
+
+  it('should not transition when already in reminder status even if overdue', () => {
+    const invoice = Invoice.create({
+      ...validProps,
+      dueDate: new Date('2026-06-01'),
+      status: InvoiceStatus.PRIMER_RECORDATORIO,
+    });
+    expect(invoice.isOverdueAt(today)).toBe(true);
+    expect(invoice.shouldTransitionToFirstReminder(today)).toBe(false);
+  });
+});
+
 describe('Invoice transitions', () => {
   it('should transition from primer recordatorio to segundo recordatorio', () => {
     const invoice = Invoice.create({ ...validProps, status: InvoiceStatus.PRIMER_RECORDATORIO });

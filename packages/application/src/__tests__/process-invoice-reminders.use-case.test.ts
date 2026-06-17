@@ -34,6 +34,7 @@ function createMockRepository(invoices: Invoice[] = []): jest.Mocked<IInvoiceRep
         .filter((inv) => statuses.includes(inv.status))
         .map((props) => Invoice.fromProps(props)),
     ),
+    findByStatusAndDueDateBefore: jest.fn(),
     findAllSummaries: jest.fn(),
     findById: jest.fn(async (id) => {
       const props = store.find((inv) => inv.id === id);

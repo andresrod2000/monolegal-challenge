@@ -37,6 +37,7 @@ const invoiceSchema = new Schema<InvoiceDocument>(
 );
 
 invoiceSchema.index({ status: 1, clientId: 1 });
+invoiceSchema.index({ status: 1, dueDate: 1 });
 
 function getInvoiceModel(): Model<InvoiceDocument> {
   return (
@@ -92,6 +93,14 @@ export class MongoInvoiceRepository implements IInvoiceRepository {
 
   async findByStatus(statuses: InvoiceStatus[]): Promise<Invoice[]> {
     const docs = await this.model.find({ status: { $in: statuses } }).exec();
+    return docs.map(toDomain);
+  }
+
+  async findByStatusAndDueDateBefore(
+    status: InvoiceStatus,
+    dueDateBefore: Date,
+  ): Promise<Invoice[]> {
+    const docs = await this.model.find({ status, dueDate: { $lt: dueDateBefore } }).exec();
     return docs.map(toDomain);
   }
 

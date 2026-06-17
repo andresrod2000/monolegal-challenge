@@ -77,6 +77,7 @@ Orquesta la lógica de negocio aplicando el **Principio de Responsabilidad Únic
 
 | Caso de uso | Responsabilidad |
 |-------------|-----------------|
+| `ProcessOverdueInvoicesUseCase` | Transicionar facturas `al_dia` vencidas a `primerrecordatorio` |
 | `ProcessInvoiceRemindersUseCase` | Procesar recordatorios, resolver email del cliente y transicionar estados |
 | `GetInvoicesSummaryUseCase` | Listar resumen de facturas con datos del cliente (join) |
 | `GetInvoiceByIdUseCase` / `CreateInvoiceUseCase` / `UpdateInvoiceUseCase` / `DeleteInvoiceUseCase` | CRUD de facturas |
@@ -102,7 +103,7 @@ Implementaciones concretas de los ports:
 **Ubicación:** `apps/api`, `apps/worker`, `apps/frontend`
 
 - **API:** expone endpoints HTTP REST, delega a casos de uso.
-- **Worker:** entrypoint cron, ejecuta el caso de uso de recordatorios.
+- **Worker:** entrypoint cron, ejecuta transición por vencimiento y luego el caso de uso de recordatorios.
 - **Frontend:** consume la API vía proxy Next.js; gestión de clientes, facturas y emails de destino.
 
 ---
@@ -118,19 +119,25 @@ El envío de correos es una operación **lenta e impredecible** (latencia de red
 ```mermaid
 sequenceDiagram
     participant Cron as Worker Cron
-    participant UC as ProcessInvoiceRemindersUseCase
+    participant OverdueUC as ProcessOverdueInvoicesUseCase
+    participant ReminderUC as ProcessInvoiceRemindersUseCase
     participant DB as MongoDB
     participant Gmail as Gmail SMTP
     participant API as REST API
     participant UI as Dashboard
 
     Note over Cron,Gmail: Proceso asíncrono (diario)
-    Cron->>UC: execute()
-    UC->>DB: findByStatus(primerrecordatorio, segundorecordatorio)
+    Cron->>OverdueUC: execute()
+    OverdueUC->>DB: findByStatusAndDueDateBefore(al_dia, today)
+    loop Por cada factura vencida
+        OverdueUC->>DB: updateStatus(primerrecordatorio)
+    end
+    Cron->>ReminderUC: execute()
+    ReminderUC->>DB: findByStatus(primerrecordatorio, segundorecordatorio)
     loop Por cada factura
-        UC->>DB: findById(clientId)
-        UC->>Gmail: sendReminder(client.email)
-        UC->>DB: updateStatus()
+        ReminderUC->>DB: findById(clientId)
+        ReminderUC->>Gmail: sendReminder(client.email)
+        ReminderUC->>DB: updateStatus()
     end
 
     Note over API,UI: Gestión síncrona (on-demand)
@@ -250,7 +257,7 @@ El worker procesa cada factura en este orden:
 | **OCP** | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso |
 | **LSP** | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider` |
 | **ISP** | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente |
-| **DIP** | Application depende de ports en domain; `ProcessInvoiceRemindersUseCase` depende de `IClientRepository` para resolver el email actual |
+| **DIP** | Application depende de ports en domain; `ProcessOverdueInvoicesUseCase` y `ProcessInvoiceRemindersUseCase` dependen de `IInvoiceRepository` |
 
 ### Dependencias entre paquetes
 
@@ -313,10 +320,17 @@ erDiagram
 
 ### Transiciones (Worker)
 
+El worker ejecuta dos pasos en orden en cada corrida del cron:
+
 ```
+al_dia              →  primerrecordatorio  (automático: vencimiento al día siguiente)
 primerrecordatorio  →  segundorecordatorio  (email: aviso de 2do recordatorio)
 segundorecordatorio →  desactivado           (email: aviso de desactivación)
 ```
+
+**Regla de vencimiento:** una factura en `al_dia` pasa a `primerrecordatorio` desde el día siguiente al vencimiento (`dueDate` estrictamente anterior a hoy). El día del vencimiento sigue en `al_dia`.
+
+La lógica vive en la entidad `Invoice` (`isOverdueAt`, `shouldTransitionToFirstReminder`) y se orquesta con `ProcessOverdueInvoicesUseCase`.
 
 ---
 
@@ -334,6 +348,7 @@ segundorecordatorio →  desactivado           (email: aviso de desactivación)
 | POST | `/api/invoices` | Crear factura (genera `invoiceNumber`) |
 | PATCH | `/api/invoices/:id` | Actualizar concept, amount, dueDate, status |
 | DELETE | `/api/invoices/:id` | Eliminar factura |
+| POST | `/api/overdue/process` | Transicionar facturas vencidas manualmente (`al_dia` → `primerrecordatorio`) |
 | POST | `/api/reminders/process` | Ejecutar recordatorios manualmente (todas las facturas elegibles) |
 | POST | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura específica |
 
