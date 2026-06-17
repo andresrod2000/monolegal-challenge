@@ -1,12 +1,42 @@
-import type { Invoice } from '@/types/invoice';
+import type { Invoice, InvoiceSortField, InvoiceSortState } from '@/types/invoice';
 import { canProcessReminder } from '@/lib/invoice-status';
+import { getSortIndicator } from '@/lib/invoice-list-utils';
 import { StatusBadge } from './StatusBadge';
 
 interface InvoiceTableProps {
   invoices: Invoice[];
+  sortState: InvoiceSortState;
+  onSortChange: (field: InvoiceSortField) => void;
   onEdit: (invoice: Invoice) => void;
   onProcessReminder: (invoice: Invoice) => void;
   processingInvoiceId: string | null;
+}
+
+interface SortableHeaderProps {
+  label: string;
+  field: InvoiceSortField;
+  sortState: InvoiceSortState;
+  onSortChange: (field: InvoiceSortField) => void;
+}
+
+function SortableHeader({ label, field, sortState, onSortChange }: SortableHeaderProps) {
+  const indicator = getSortIndicator(sortState, field);
+  const isActive = sortState.field === field;
+
+  return (
+    <th className="px-4 py-4 font-medium">
+      <button
+        type="button"
+        onClick={() => onSortChange(field)}
+        className={`inline-flex items-center gap-1 transition-colors hover:text-white ${
+          isActive ? 'text-indigo-300' : 'text-slate-400'
+        }`}
+      >
+        {label}
+        {indicator && <span className="text-xs">{indicator}</span>}
+      </button>
+    </th>
+  );
 }
 
 function formatCurrency(amount: number): string {
@@ -27,6 +57,8 @@ function formatDate(isoDate: string): string {
 
 export function InvoiceTable({
   invoices,
+  sortState,
+  onSortChange,
   onEdit,
   onProcessReminder,
   processingInvoiceId,
@@ -34,7 +66,7 @@ export function InvoiceTable({
   if (invoices.length === 0) {
     return (
       <div className="rounded-xl border border-slate-800 bg-slate-900/40 p-12 text-center text-slate-400">
-        No hay facturas que coincidan con el filtro seleccionado.
+        No hay facturas que coincidan con los filtros seleccionados.
       </div>
     );
   }
@@ -45,12 +77,32 @@ export function InvoiceTable({
         <table className="w-full min-w-[1080px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-800 bg-slate-900/80 text-slate-400">
-              <th className="px-4 py-4 font-medium">N° Factura</th>
+              <SortableHeader
+                label="N° Factura"
+                field="invoiceNumber"
+                sortState={sortState}
+                onSortChange={onSortChange}
+              />
               <th className="px-4 py-4 font-medium">Concepto</th>
-              <th className="px-4 py-4 font-medium">Cliente</th>
+              <SortableHeader
+                label="Cliente"
+                field="clientName"
+                sortState={sortState}
+                onSortChange={onSortChange}
+              />
               <th className="px-4 py-4 font-medium">Email destino</th>
-              <th className="px-4 py-4 font-medium">Monto</th>
-              <th className="px-4 py-4 font-medium">Vencimiento</th>
+              <SortableHeader
+                label="Monto"
+                field="amount"
+                sortState={sortState}
+                onSortChange={onSortChange}
+              />
+              <SortableHeader
+                label="Vencimiento"
+                field="dueDate"
+                sortState={sortState}
+                onSortChange={onSortChange}
+              />
               <th className="px-4 py-4 font-medium">Estado</th>
               <th className="px-4 py-4 font-medium">Acciones</th>
             </tr>

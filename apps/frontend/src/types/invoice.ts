@@ -23,6 +23,16 @@ export interface InvoiceApiResponse {
 
 export type StatusFilter = InvoiceStatus | 'all';
 
+export type ClientFilter = 'all' | string;
+
+export type InvoiceSortField = 'invoiceNumber' | 'clientName' | 'amount' | 'dueDate';
+export type SortDirection = 'asc' | 'desc';
+
+export interface InvoiceSortState {
+  field: InvoiceSortField;
+  direction: SortDirection;
+}
+
 export interface CreateInvoiceInput {
   clientId: string;
   concept: string;

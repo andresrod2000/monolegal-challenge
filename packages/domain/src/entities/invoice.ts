@@ -1,4 +1,4 @@
-import { InvoiceStatus, isValidInvoiceStatus } from '@monolegal/shared';
+import { diffDaysFromToday, InvoiceStatus, isValidInvoiceStatus } from '@monolegal/shared';
 import { InvoiceTransitionError, InvoiceValidationError } from '../errors/index.js';
 import type { InvoiceProps } from './invoice.types.js';
 
@@ -67,6 +67,18 @@ export class Invoice {
       dueDate: this.dueDate,
       status: this.status,
     };
+  }
+
+  isOverdueAt(referenceDate: Date): boolean {
+    return diffDaysFromToday(this.dueDate, referenceDate) < 0;
+  }
+
+  shouldTransitionToFirstReminder(referenceDate: Date): boolean {
+    return this.status === InvoiceStatus.AL_DIA && this.isOverdueAt(referenceDate);
+  }
+
+  getStatusAfterBecomingOverdue(): InvoiceStatus {
+    return InvoiceStatus.PRIMER_RECORDATORIO;
   }
 
   canSendFirstReminder(): boolean {

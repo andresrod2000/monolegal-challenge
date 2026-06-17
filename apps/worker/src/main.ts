@@ -9,10 +9,11 @@ const RUN_ON_START = process.env.RUN_ON_START === 'true';
 async function runJob(container: Awaited<ReturnType<typeof createContainer>>): Promise<void> {
   const jobLogger = container.logger.child({ correlationId: randomUUID() });
   jobLogger.info('Worker job started');
-  const result = await container.processInvoiceRemindersUseCase.execute();
+  const overdueResult = await container.processOverdueInvoicesUseCase.execute();
+  const reminderResult = await container.processInvoiceRemindersUseCase.execute();
   jobLogger.info('Worker job finished', {
-    processed: result.processed,
-    failed: result.failed,
+    overdue: overdueResult,
+    reminders: reminderResult,
   });
 }
 

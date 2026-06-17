@@ -1,5 +1,7 @@
 export { ProcessInvoiceRemindersUseCase } from './process-invoice-reminders.use-case.js';
 export type { ProcessInvoiceRemindersResult } from './process-invoice-reminders.use-case.js';
+export { ProcessOverdueInvoicesUseCase } from './process-overdue-invoices.use-case.js';
+export type { ProcessOverdueInvoicesResult } from './process-overdue-invoices.use-case.js';
 export { GetInvoicesSummaryUseCase } from './get-invoices-summary.use-case.js';
 export { GetInvoiceByIdUseCase } from './get-invoice-by-id.use-case.js';
 export { CreateInvoiceUseCase } from './create-invoice.use-case.js';

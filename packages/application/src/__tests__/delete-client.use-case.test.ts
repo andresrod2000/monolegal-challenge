@@ -37,6 +37,7 @@ describe('DeleteClientUseCase', () => {
 
     const invoiceRepository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(),
       findByClientId: jest.fn(async () => []),
@@ -77,6 +78,7 @@ describe('DeleteClientUseCase', () => {
 
     const invoiceRepository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(),
       findByClientId: jest.fn(async () => [invoice]),
@@ -105,6 +107,7 @@ describe('DeleteClientUseCase', () => {
 
     const invoiceRepository: jest.Mocked<IInvoiceRepository> = {
       findByStatus: jest.fn(),
+      findByStatusAndDueDateBefore: jest.fn(),
       findAllSummaries: jest.fn(),
       findById: jest.fn(),
       findByClientId: jest.fn(),

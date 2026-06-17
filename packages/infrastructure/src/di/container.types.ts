@@ -13,6 +13,7 @@ import type {
   GetInvoiceByIdUseCase,
   GetInvoicesSummaryUseCase,
   ProcessInvoiceRemindersUseCase,
+  ProcessOverdueInvoicesUseCase,
   UpdateClientUseCase,
   UpdateInvoiceUseCase,
 } from '@monolegal/application';
@@ -32,6 +33,7 @@ export interface Container {
   invoiceRepository: IInvoiceRepository;
   invoiceSeeder: IInvoiceSeeder;
   emailProvider: IEmailProvider;
+  processOverdueInvoicesUseCase: ProcessOverdueInvoicesUseCase;
   processInvoiceRemindersUseCase: ProcessInvoiceRemindersUseCase;
   getInvoicesSummaryUseCase: GetInvoicesSummaryUseCase;
   getInvoiceByIdUseCase: GetInvoiceByIdUseCase;
@@ -57,6 +59,7 @@ export interface ApiDependencies {
   createClientUseCase: CreateClientUseCase;
   updateClientUseCase: UpdateClientUseCase;
   deleteClientUseCase: DeleteClientUseCase;
+  processOverdueInvoicesUseCase: ProcessOverdueInvoicesUseCase;
   processInvoiceRemindersUseCase: ProcessInvoiceRemindersUseCase;
 }
 
@@ -73,6 +76,7 @@ export function toApiDependencies(container: Container): ApiDependencies {
     createClientUseCase: container.createClientUseCase,
     updateClientUseCase: container.updateClientUseCase,
     deleteClientUseCase: container.deleteClientUseCase,
+    processOverdueInvoicesUseCase: container.processOverdueInvoicesUseCase,
     processInvoiceRemindersUseCase: container.processInvoiceRemindersUseCase,
   };
 }
