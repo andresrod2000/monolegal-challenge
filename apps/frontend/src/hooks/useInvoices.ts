@@ -1,7 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Invoice, InvoicesApiResponse } from '@/types/invoice';
+import { parseApiError } from '@/lib/api-error';
+import type {
+  CreateInvoiceInput,
+  Invoice,
+  InvoicesApiResponse,
+  UpdateInvoiceInput,
+} from '@/types/invoice';
 
 interface UseInvoicesResult {
   invoices: Invoice[];
@@ -21,7 +27,7 @@ export function useInvoices(): UseInvoicesResult {
     try {
       const response = await fetch('/api/invoices');
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        throw new Error(await parseApiError(response));
       }
       const json: InvoicesApiResponse = await response.json();
       setInvoices(json.data);
@@ -33,8 +39,41 @@ export function useInvoices(): UseInvoicesResult {
   }, []);
 
   useEffect(() => {
-    refetch();
+    void refetch();
   }, [refetch]);
 
   return { invoices, loading, error, refetch };
+}
+
+export async function createInvoice(input: CreateInvoiceInput): Promise<Invoice> {
+  const response = await fetch('/api/invoices', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response));
+  }
+  const json = await response.json();
+  return json.data;
+}
+
+export async function updateInvoice(id: string, input: UpdateInvoiceInput): Promise<Invoice> {
+  const response = await fetch(`/api/invoices/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response));
+  }
+  const json = await response.json();
+  return json.data;
+}
+
+export async function deleteInvoice(id: string): Promise<void> {
+  const response = await fetch(`/api/invoices/${id}`, { method: 'DELETE' });
+  if (!response.ok) {
+    throw new Error(await parseApiError(response));
+  }
 }

@@ -1,11 +1,19 @@
 import mongoose, { Schema, type Document, type Model } from 'mongoose';
-import { Invoice, type IInvoiceRepository, type InvoiceProps, type InvoiceSummary } from '@monolegal/domain';
+import {
+  Invoice,
+  InvoiceNotFoundError,
+  type IInvoiceRepository,
+  type InvoiceProps,
+  type InvoiceSummary,
+  type InvoiceUpdateProps,
+} from '@monolegal/domain';
 import { InvoiceStatus, isValidInvoiceStatus } from '@monolegal/shared';
+import { getClientModel } from './mongo-client.repository.js';
 
 export interface InvoiceDocument extends Document {
   clientId: string;
-  clientName: string;
-  clientEmail: string;
+  invoiceNumber: string;
+  concept: string;
   amount: number;
   dueDate: Date;
   status: InvoiceStatus;
@@ -14,8 +22,8 @@ export interface InvoiceDocument extends Document {
 const invoiceSchema = new Schema<InvoiceDocument>(
   {
     clientId: { type: String, required: true, index: true },
-    clientName: { type: String, required: true },
-    clientEmail: { type: String, required: true },
+    invoiceNumber: { type: String, required: true, unique: true },
+    concept: { type: String, required: true },
     amount: { type: Number, required: true, min: 0 },
     dueDate: { type: Date, required: true },
     status: {
@@ -41,8 +49,8 @@ function toInvoiceProps(doc: InvoiceDocument): InvoiceProps {
   return {
     id: doc._id.toString(),
     clientId: doc.clientId,
-    clientName: doc.clientName,
-    clientEmail: doc.clientEmail,
+    invoiceNumber: doc.invoiceNumber,
+    concept: doc.concept,
     amount: doc.amount,
     dueDate: doc.dueDate,
     status: doc.status,
@@ -53,11 +61,26 @@ function toDomain(doc: InvoiceDocument): Invoice {
   return Invoice.fromProps(toInvoiceProps(doc));
 }
 
-function toInvoiceSummary(doc: InvoiceDocument): InvoiceSummary {
+interface SummaryAggregationResult {
+  _id: mongoose.Types.ObjectId;
+  clientId: string;
+  invoiceNumber: string;
+  concept: string;
+  amount: number;
+  dueDate: Date;
+  status: InvoiceStatus;
+  client?: { name: string; email: string }[];
+}
+
+function toInvoiceSummary(doc: SummaryAggregationResult): InvoiceSummary {
+  const client = doc.client?.[0];
   return {
     id: doc._id.toString(),
     clientId: doc.clientId,
-    clientName: doc.clientName,
+    clientName: client?.name ?? 'Unknown',
+    clientEmail: client?.email ?? '',
+    invoiceNumber: doc.invoiceNumber,
+    concept: doc.concept,
     amount: doc.amount,
     dueDate: doc.dueDate,
     status: doc.status,
@@ -72,9 +95,52 @@ export class MongoInvoiceRepository implements IInvoiceRepository {
     return docs.map(toDomain);
   }
 
-  async findAll(): Promise<InvoiceSummary[]> {
-    const docs = await this.model.find().sort({ dueDate: -1 }).exec();
+  async findAllSummaries(): Promise<InvoiceSummary[]> {
+    const clientCollection = getClientModel().collection.name;
+    const docs = await this.model
+      .aggregate<SummaryAggregationResult>([
+        { $sort: { dueDate: -1 } },
+        {
+          $lookup: {
+            from: clientCollection,
+            localField: 'clientId',
+            foreignField: 'clientId',
+            as: 'client',
+          },
+        },
+      ])
+      .exec();
     return docs.map(toInvoiceSummary);
+  }
+
+  async findById(id: string): Promise<Invoice | null> {
+    const doc = await this.model.findById(id).exec();
+    return doc ? toDomain(doc) : null;
+  }
+
+  async findByClientId(clientId: string): Promise<Invoice[]> {
+    const docs = await this.model.find({ clientId }).exec();
+    return docs.map(toDomain);
+  }
+
+  async create(props: Omit<InvoiceProps, 'id'>): Promise<Invoice> {
+    const doc = await this.model.create(props);
+    return toDomain(doc);
+  }
+
+  async update(id: string, props: InvoiceUpdateProps): Promise<Invoice> {
+    const doc = await this.model.findByIdAndUpdate(id, { $set: props }, { new: true }).exec();
+    if (!doc) {
+      throw new InvoiceNotFoundError(`Invoice not found: ${id}`);
+    }
+    return toDomain(doc);
+  }
+
+  async delete(id: string): Promise<void> {
+    const result = await this.model.findByIdAndDelete(id).exec();
+    if (!result) {
+      throw new InvoiceNotFoundError(`Invoice not found: ${id}`);
+    }
   }
 
   async updateStatus(id: string, status: InvoiceStatus): Promise<void> {
@@ -83,8 +149,14 @@ export class MongoInvoiceRepository implements IInvoiceRepository {
     }
     const result = await this.model.findByIdAndUpdate(id, { status }).exec();
     if (!result) {
-      throw new Error(`Invoice not found: ${id}`);
+      throw new InvoiceNotFoundError(`Invoice not found: ${id}`);
     }
+  }
+
+  async countByYear(year: number): Promise<number> {
+    const start = new Date(year, 0, 1);
+    const end = new Date(year + 1, 0, 1);
+    return this.model.countDocuments({ dueDate: { $gte: start, $lt: end } }).exec();
   }
 }
 

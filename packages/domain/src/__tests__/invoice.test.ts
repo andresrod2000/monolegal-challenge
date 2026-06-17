@@ -8,8 +8,8 @@ import {
 const validProps = {
   id: 'inv-1',
   clientId: 'client-1',
-  clientName: 'Acme Corp',
-  clientEmail: 'billing@acme.com',
+  invoiceNumber: 'INV-2026-0001',
+  concept: 'Suscripción SaaS — Marzo 2026',
   amount: 150000,
   dueDate: new Date('2026-05-01'),
   status: InvoiceStatus.PRIMER_RECORDATORIO,
@@ -19,12 +19,18 @@ describe('Invoice.create', () => {
   it('should create a valid invoice', () => {
     const invoice = Invoice.create(validProps);
     expect(invoice.id).toBe('inv-1');
+    expect(invoice.invoiceNumber).toBe('INV-2026-0001');
+    expect(invoice.concept).toBe('Suscripción SaaS — Marzo 2026');
     expect(invoice.status).toBe(InvoiceStatus.PRIMER_RECORDATORIO);
   });
 
   it('should throw InvoiceValidationError when id is empty', () => {
     expect(() => Invoice.create({ ...validProps, id: '' })).toThrow(InvoiceValidationError);
     expect(() => Invoice.create({ ...validProps, id: '  ' })).toThrow('Invoice id is required');
+  });
+
+  it('should throw InvoiceValidationError when concept is empty', () => {
+    expect(() => Invoice.create({ ...validProps, concept: '' })).toThrow(InvoiceValidationError);
   });
 
   it('should throw InvoiceValidationError when amount is zero or negative', () => {
@@ -61,16 +67,18 @@ describe('Invoice transitions', () => {
 describe('Invoice.buildReminderPayload', () => {
   it('should build first reminder email and next status', () => {
     const invoice = Invoice.create({ ...validProps, status: InvoiceStatus.PRIMER_RECORDATORIO });
-    const payload = invoice.buildReminderPayload();
+    const payload = invoice.buildReminderPayload('Acme Corp');
 
     expect(payload.nextStatus).toBe(InvoiceStatus.SEGUNDO_RECORDATORIO);
     expect(payload.email.subject).toContain('Recordatorio de pago');
+    expect(payload.email.subject).toContain('INV-2026-0001');
     expect(payload.email.body).toContain('Acme Corp');
+    expect(payload.email.body).toContain('Suscripción SaaS — Marzo 2026');
   });
 
   it('should build second reminder email and next status', () => {
     const invoice = Invoice.create({ ...validProps, status: InvoiceStatus.SEGUNDO_RECORDATORIO });
-    const payload = invoice.buildReminderPayload();
+    const payload = invoice.buildReminderPayload('Acme Corp');
 
     expect(payload.nextStatus).toBe(InvoiceStatus.DESACTIVADO);
     expect(payload.email.subject).toContain('Desactivación inminente');

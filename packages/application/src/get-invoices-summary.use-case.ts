@@ -8,7 +8,7 @@ export class GetInvoicesSummaryUseCase {
 
   async execute(): Promise<InvoiceSummary[]> {
     this.logger.debug('Fetching invoices summary');
-    const invoices = await this.invoiceRepository.findAll();
+    const invoices = await this.invoiceRepository.findAllSummaries();
     this.logger.info('Invoices summary fetched', { count: invoices.length });
     return invoices;
   }
