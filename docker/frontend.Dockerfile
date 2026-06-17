@@ -1,11 +1,10 @@
-# ── Stage 1: Dependencies ──
+# ── Stage 1: Dependencies (shared package only) ──
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-COPY scripts/install-workspaces.js scripts/link-workspaces.js ./scripts/
+COPY scripts/docker-install-deps.js scripts/link-workspaces.js ./scripts/
 COPY packages/shared/package.json ./packages/shared/
-COPY apps/frontend/package.json ./apps/frontend/
-RUN node scripts/install-workspaces.js
+RUN node scripts/docker-install-deps.js
 
 # ── Stage 2: Build ──
 FROM node:20-alpine AS build
@@ -14,7 +13,10 @@ COPY --from=deps /app ./
 COPY . .
 ARG NEXT_PUBLIC_API_URL=http://api.monolegal.local
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-RUN npm run build --prefix packages/shared && npm run build --prefix apps/frontend
+RUN node scripts/link-workspaces.js \
+  && npm install --ignore-scripts --prefix apps/frontend \
+  && npm run build --prefix packages/shared \
+  && npm run build --prefix apps/frontend
 
 # ── Stage 3: Production ──
 FROM node:20-alpine AS production

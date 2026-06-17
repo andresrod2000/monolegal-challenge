@@ -1,21 +1,23 @@
-# ── Stage 1: Dependencies ──
+# ── Stage 1: Dependencies (packages only; apps install after full source copy) ──
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-COPY scripts/install-workspaces.js scripts/link-workspaces.js ./scripts/
+COPY scripts/docker-install-deps.js scripts/link-workspaces.js ./scripts/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/domain/package.json ./packages/domain/
 COPY packages/application/package.json ./packages/application/
 COPY packages/infrastructure/package.json ./packages/infrastructure/
-COPY apps/api/package.json ./apps/api/
-RUN node scripts/install-workspaces.js
+RUN node scripts/docker-install-deps.js
 
 # ── Stage 2: Build ──
 FROM node:20-alpine AS build
 WORKDIR /app
 COPY --from=deps /app ./
 COPY . .
-RUN npm run build:packages && npm run build --prefix apps/api
+RUN node scripts/link-workspaces.js \
+  && npm install --ignore-scripts --prefix apps/api \
+  && npm run build:packages \
+  && npm run build --prefix apps/api
 
 # ── Stage 3: Production ──
 FROM node:20-alpine AS production
