@@ -9,12 +9,12 @@ interface InvoiceClientFilterProps {
 
 export function InvoiceClientFilter({ clients, value, onChange }: InvoiceClientFilterProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="text-sm text-slate-400">Cliente:</span>
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="text-sm text-brand-muted">Cliente:</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as ClientFilter)}
-        className="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-sm text-white focus:border-indigo-500 focus:outline-none"
+        className="input-field w-auto min-w-[200px] py-1.5 text-sm"
       >
         <option value="all">Todos los clientes</option>
         {clients.map((client) => (
