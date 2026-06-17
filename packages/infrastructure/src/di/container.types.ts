@@ -57,6 +57,7 @@ export interface ApiDependencies {
   createClientUseCase: CreateClientUseCase;
   updateClientUseCase: UpdateClientUseCase;
   deleteClientUseCase: DeleteClientUseCase;
+  processInvoiceRemindersUseCase: ProcessInvoiceRemindersUseCase;
 }
 
 export function toApiDependencies(container: Container): ApiDependencies {
@@ -72,6 +73,7 @@ export function toApiDependencies(container: Container): ApiDependencies {
     createClientUseCase: container.createClientUseCase,
     updateClientUseCase: container.updateClientUseCase,
     deleteClientUseCase: container.deleteClientUseCase,
+    processInvoiceRemindersUseCase: container.processInvoiceRemindersUseCase,
   };
 }
 

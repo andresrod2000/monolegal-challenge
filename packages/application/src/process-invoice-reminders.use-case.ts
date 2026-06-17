@@ -1,6 +1,6 @@
 import type { IClientRepository, IEmailProvider, IInvoiceRepository, ILogger } from '@monolegal/domain';
 import type { Invoice } from '@monolegal/domain';
-import { ClientNotFoundError } from '@monolegal/domain';
+import { ClientNotFoundError, InvoiceNotFoundError, InvoiceTransitionError } from '@monolegal/domain';
 import { REMINDER_STATUSES } from '@monolegal/shared';
 
 export interface ProcessInvoiceRemindersResult {
@@ -44,6 +44,34 @@ export class ProcessInvoiceRemindersUseCase {
     this.logger.info('Invoice reminder processing completed', { processed, failed });
 
     return { processed, failed };
+  }
+
+  async executeForInvoiceId(invoiceId: string): Promise<ProcessInvoiceRemindersResult> {
+    const invoice = await this.invoiceRepository.findById(invoiceId);
+    if (!invoice) {
+      throw new InvoiceNotFoundError(`Invoice not found: ${invoiceId}`);
+    }
+    if (!REMINDER_STATUSES.includes(invoice.status)) {
+      throw new InvoiceTransitionError(
+        `Invoice ${invoiceId} is not eligible for reminder processing (status: ${invoice.status})`,
+      );
+    }
+
+    this.logger.info('Starting single invoice reminder processing', { invoiceId });
+
+    try {
+      await this.processInvoice(invoice);
+      this.logger.info('Single invoice reminder processing completed', { invoiceId, processed: 1 });
+      return { processed: 1, failed: 0 };
+    } catch (error) {
+      this.logger.error('Failed to process invoice reminder', {
+        invoiceId,
+        clientId: invoice.clientId,
+        status: invoice.status,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return { processed: 0, failed: 1 };
+    }
   }
 
   private async processInvoice(invoice: Invoice): Promise<void> {

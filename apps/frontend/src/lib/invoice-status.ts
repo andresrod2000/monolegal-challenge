@@ -12,6 +12,15 @@ export const ALL_INVOICE_STATUSES: InvoiceStatus[] = [
   InvoiceStatus.DESACTIVADO,
 ];
 
+export const REMINDER_STATUSES: InvoiceStatus[] = [
+  InvoiceStatus.PRIMER_RECORDATORIO,
+  InvoiceStatus.SEGUNDO_RECORDATORIO,
+];
+
+export function canProcessReminder(status: InvoiceStatus): boolean {
+  return REMINDER_STATUSES.includes(status);
+}
+
 export function getInvoiceStatusLabel(status: InvoiceStatus): string {
   const labels: Record<InvoiceStatus, string> = {
     [InvoiceStatus.AL_DIA]: 'Al día',

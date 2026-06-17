@@ -16,6 +16,9 @@ Sistema de gestión de facturación, clientes, recordatorios automáticos y dash
 - **Facturas:** CRUD con concepto, número (`INV-YYYY-NNNN`), monto, vencimiento y estado.
 - **Worker:** envío automático de recordatorios usando el email actual del cliente.
 - **Dashboard:** pestañas Facturas / Clientes, formularios de alta y edición.
+- **Seed aleatorio:** `npm run seed` genera 15 facturas con fechas entre **2 días antes y 7 días después** de hoy, concepto y monto aleatorios; el estado se deriva del vencimiento.
+- **Dummy data en UI:** botón "Generar dummy data" al crear factura (concepto, monto y fecha entre hoy y +7 días).
+- **Recordatorios manuales:** botón global "Ejecutar recordatorios" y botón "Recordatorio" por factura elegible (primer/segundo recordatorio).
 
 ## Documentación
 

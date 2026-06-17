@@ -35,7 +35,10 @@ function createMockRepository(invoices: Invoice[] = []): jest.Mocked<IInvoiceRep
         .map((props) => Invoice.fromProps(props)),
     ),
     findAllSummaries: jest.fn(),
-    findById: jest.fn(),
+    findById: jest.fn(async (id) => {
+      const props = store.find((inv) => inv.id === id);
+      return props ? Invoice.fromProps(props) : null;
+    }),
     findByClientId: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -289,5 +292,63 @@ describe('ProcessInvoiceRemindersUseCase', () => {
       'Email sent but status update failed',
       expect.objectContaining({ emailAlreadySent: true, invoiceId: 'inv-1' }),
     );
+  });
+
+  it('should process a single invoice by id', async () => {
+    const invoice = createInvoice({
+      id: 'inv-single',
+      status: InvoiceStatus.PRIMER_RECORDATORIO,
+    });
+    const repository = createMockRepository([invoice]);
+    repository.findById = jest.fn(async () => invoice);
+    const clientRepository = createMockClientRepository();
+    const emailProvider = createMockEmailProvider();
+    const logger = createMockLogger();
+
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      clientRepository,
+      emailProvider,
+      logger,
+    );
+    const result = await useCase.executeForInvoiceId('inv-single');
+
+    expect(result).toEqual({ processed: 1, failed: 0 });
+    expect(repository.findById).toHaveBeenCalledWith('inv-single');
+    expect(emailProvider.sendReminder).toHaveBeenCalledTimes(1);
+    expect(repository.updateStatus).toHaveBeenCalledWith(
+      'inv-single',
+      InvoiceStatus.SEGUNDO_RECORDATORIO,
+    );
+  });
+
+  it('should throw InvoiceNotFoundError for missing invoice id', async () => {
+    const repository = createMockRepository([]);
+    repository.findById = jest.fn(async () => null);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      createMockClientRepository(),
+      createMockEmailProvider(),
+      createMockLogger(),
+    );
+
+    await expect(useCase.executeForInvoiceId('missing')).rejects.toThrow('Invoice not found');
+  });
+
+  it('should throw InvoiceTransitionError when invoice is not eligible', async () => {
+    const invoice = createInvoice({
+      id: 'inv-al-dia',
+      status: InvoiceStatus.AL_DIA,
+    });
+    const repository = createMockRepository([invoice]);
+    repository.findById = jest.fn(async () => invoice);
+    const useCase = new ProcessInvoiceRemindersUseCase(
+      repository,
+      createMockClientRepository(),
+      createMockEmailProvider(),
+      createMockLogger(),
+    );
+
+    await expect(useCase.executeForInvoiceId('inv-al-dia')).rejects.toThrow('not eligible');
   });
 });

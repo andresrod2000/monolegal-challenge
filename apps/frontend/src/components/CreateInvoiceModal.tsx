@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ALL_INVOICE_STATUSES, InvoiceStatus, getInvoiceStatusLabel } from '@/lib/invoice-status';
+import { generateDummyInvoiceFormFields } from '@/lib/dummy-invoice-data';
 import type { Client } from '@/types/client';
 import { Modal } from './Modal';
 
@@ -46,6 +47,13 @@ export function CreateInvoiceForm({ clients, onSubmit, onClose }: CreateInvoiceF
     }
   }
 
+  function handleGenerateDummyData() {
+    const dummy = generateDummyInvoiceFormFields();
+    setConcept(dummy.concept);
+    setAmount(String(dummy.amount));
+    setDueDate(dummy.dueDate);
+  }
+
   if (clients.length === 0) {
     return (
       <p className="text-slate-400">Primero debe crear al menos un cliente.</p>
@@ -75,7 +83,16 @@ export function CreateInvoiceForm({ clients, onSubmit, onClose }: CreateInvoiceF
         </select>
       </div>
       <div>
-        <label className="mb-1 block text-sm text-slate-400">Concepto</label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="block text-sm text-slate-400">Concepto</label>
+          <button
+            type="button"
+            onClick={handleGenerateDummyData}
+            className="rounded-lg border border-slate-600 px-3 py-1 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white"
+          >
+            Generar dummy data
+          </button>
+        </div>
         <input
           type="text"
           value={concept}

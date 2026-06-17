@@ -334,6 +334,8 @@ segundorecordatorio →  desactivado           (email: aviso de desactivación)
 | POST | `/api/invoices` | Crear factura (genera `invoiceNumber`) |
 | PATCH | `/api/invoices/:id` | Actualizar concept, amount, dueDate, status |
 | DELETE | `/api/invoices/:id` | Eliminar factura |
+| POST | `/api/reminders/process` | Ejecutar recordatorios manualmente (todas las facturas elegibles) |
+| POST | `/api/reminders/process/:invoiceId` | Ejecutar recordatorio de una factura específica |
 
 Errores de dominio mapeados a HTTP: validación → 400, not found → 404.
 

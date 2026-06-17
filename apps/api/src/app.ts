@@ -5,6 +5,7 @@ import { createErrorHandler, notFoundHandler } from './middleware/error-handler.
 import { createRequestContextMiddleware } from './middleware/request-context.js';
 import { createClientsRouter } from './routes/clients.routes.js';
 import { createInvoicesRouter } from './routes/invoices.routes.js';
+import { createRemindersRouter } from './routes/reminders.routes.js';
 
 export interface ApiAppDependencies extends ApiDependencies {
   corsOrigin: string;
@@ -40,6 +41,13 @@ export function createApp(deps: ApiAppDependencies): Express {
       createInvoiceUseCase: deps.createInvoiceUseCase,
       updateInvoiceUseCase: deps.updateInvoiceUseCase,
       deleteInvoiceUseCase: deps.deleteInvoiceUseCase,
+    }),
+  );
+
+  app.use(
+    '/api/reminders',
+    createRemindersRouter({
+      processInvoiceRemindersUseCase: deps.processInvoiceRemindersUseCase,
     }),
   );
 

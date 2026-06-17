@@ -21,6 +21,7 @@ import {
   updateInvoice,
   useInvoices,
 } from '@/hooks/useInvoices';
+import { useProcessReminders } from '@/hooks/useProcessReminders';
 import type { Client } from '@/types/client';
 import type { Invoice, StatusFilter } from '@/types/invoice';
 
@@ -31,6 +32,14 @@ export default function DashboardPage() {
     useInvoices();
   const { clients, loading: clientsLoading, error: clientsError, refetch: refetchClients } =
     useClients();
+  const {
+    loading: remindersLoading,
+    processingInvoiceId,
+    error: remindersError,
+    result: remindersResult,
+    execute: executeReminders,
+    executeForInvoice,
+  } = useProcessReminders();
 
   const [tab, setTab] = useState<Tab>('invoices');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -101,6 +110,20 @@ export default function DashboardPage() {
     await refetchInvoices();
   }
 
+  async function handleProcessReminders() {
+    const result = await executeReminders();
+    if (result) {
+      await refetchInvoices();
+    }
+  }
+
+  async function handleProcessInvoiceReminder(invoice: Invoice) {
+    const result = await executeForInvoice(invoice.id);
+    if (result) {
+      await refetchInvoices();
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -130,6 +153,14 @@ export default function DashboardPage() {
               className="rounded-lg border border-indigo-500/50 px-4 py-2 text-sm font-medium text-indigo-300 transition-colors hover:bg-indigo-950"
             >
               + Nueva factura
+            </button>
+            <button
+              type="button"
+              onClick={() => handleProcessReminders()}
+              disabled={remindersLoading || processingInvoiceId !== null}
+              className="rounded-lg border border-amber-500/50 px-4 py-2 text-sm font-medium text-amber-300 transition-colors hover:bg-amber-950 disabled:opacity-50"
+            >
+              {remindersLoading ? 'Procesando…' : 'Ejecutar recordatorios'}
             </button>
             <button
               type="button"
@@ -173,6 +204,19 @@ export default function DashboardPage() {
           </div>
         )}
 
+        {remindersError && (
+          <div className="mb-6 rounded-lg border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-rose-300">
+            {remindersError}
+          </div>
+        )}
+
+        {remindersResult && (
+          <div className="mb-6 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-300">
+            Recordatorios procesados: {remindersResult.processed} exitosos,{' '}
+            {remindersResult.failed} fallidos
+          </div>
+        )}
+
         {tab === 'invoices' && (
           <>
             <section className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -197,7 +241,12 @@ export default function DashboardPage() {
                   Cargando facturas…
                 </div>
               ) : (
-                <InvoiceTable invoices={filteredInvoices} onEdit={setEditingInvoice} />
+                <InvoiceTable
+                  invoices={filteredInvoices}
+                  onEdit={setEditingInvoice}
+                  onProcessReminder={handleProcessInvoiceReminder}
+                  processingInvoiceId={processingInvoiceId}
+                />
               )}
             </section>
 
