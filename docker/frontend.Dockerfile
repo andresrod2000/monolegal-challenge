@@ -2,18 +2,19 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
+COPY scripts/install-workspaces.js scripts/link-workspaces.js ./scripts/
 COPY packages/shared/package.json ./packages/shared/
 COPY apps/frontend/package.json ./apps/frontend/
-RUN npm install --ignore-scripts
+RUN node scripts/install-workspaces.js
 
 # ── Stage 2: Build ──
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app ./
 COPY . .
 ARG NEXT_PUBLIC_API_URL=http://api.monolegal.local
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-RUN npm run build -w @monolegal/shared && npm run build -w @monolegal/frontend
+RUN npm run build --prefix packages/shared && npm run build --prefix apps/frontend
 
 # ── Stage 3: Production ──
 FROM node:20-alpine AS production

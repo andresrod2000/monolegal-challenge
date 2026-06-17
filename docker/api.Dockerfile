@@ -2,19 +2,20 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
+COPY scripts/install-workspaces.js scripts/link-workspaces.js ./scripts/
 COPY packages/shared/package.json ./packages/shared/
 COPY packages/domain/package.json ./packages/domain/
 COPY packages/application/package.json ./packages/application/
 COPY packages/infrastructure/package.json ./packages/infrastructure/
 COPY apps/api/package.json ./apps/api/
-RUN npm install --ignore-scripts
+RUN node scripts/install-workspaces.js
 
 # ── Stage 2: Build ──
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app ./
 COPY . .
-RUN npm run build:packages && npm run build -w @monolegal/api
+RUN npm run build:packages && npm run build --prefix apps/api
 
 # ── Stage 3: Production ──
 FROM node:20-alpine AS production
@@ -33,6 +34,8 @@ COPY --from=build /app/packages/application/package.json ./packages/application/
 COPY --from=build /app/packages/infrastructure/dist ./packages/infrastructure/dist
 COPY --from=build /app/packages/infrastructure/package.json ./packages/infrastructure/package.json
 COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages/infrastructure/node_modules ./packages/infrastructure/node_modules
+COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=build /app/package.json ./package.json
 
 USER nodejs
