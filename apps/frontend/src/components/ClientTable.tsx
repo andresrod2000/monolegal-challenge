@@ -43,11 +43,7 @@ export function ClientTable({ clients, invoiceCountByClient, onEdit, onDelete }:
                 </td>
                 <td className="px-5 py-5">
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onEdit(client)}
-                      className="btn-sm-ghost"
-                    >
+                    <button type="button" onClick={() => onEdit(client)} className="btn-sm-ghost">
                       Editar
                     </button>
                     <button

@@ -1,9 +1,5 @@
 import { InvoiceStatus } from '@monolegal/shared';
-import {
-  Invoice,
-  InvoiceTransitionError,
-  InvoiceValidationError,
-} from '../index.js';
+import { Invoice, InvoiceTransitionError, InvoiceValidationError } from '../index.js';
 
 const validProps = {
   id: 'inv-1',
@@ -41,9 +37,9 @@ describe('Invoice.create', () => {
   });
 
   it('should throw InvoiceValidationError for invalid status', () => {
-    expect(() =>
-      Invoice.create({ ...validProps, status: 'invalid' as InvoiceStatus }),
-    ).toThrow(InvoiceValidationError);
+    expect(() => Invoice.create({ ...validProps, status: 'invalid' as InvoiceStatus })).toThrow(
+      InvoiceValidationError,
+    );
   });
 });
 

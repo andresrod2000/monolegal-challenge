@@ -6,9 +6,5 @@
     "composite": true
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../shared" },
-    { "path": "../domain" },
-    { "path": "../application" }
-  ]
+  "references": [{ "path": "../shared" }, { "path": "../domain" }, { "path": "../application" }]
 }

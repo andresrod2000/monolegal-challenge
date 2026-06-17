@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { parseApiError } from '@/lib/api-error';
-import type { Client, ClientsApiResponse, CreateClientInput, UpdateClientInput } from '@/types/client';
+import type {
+  Client,
+  ClientsApiResponse,
+  CreateClientInput,
+  UpdateClientInput,
+} from '@/types/client';
 
 interface UseClientsResult {
   clients: Client[];

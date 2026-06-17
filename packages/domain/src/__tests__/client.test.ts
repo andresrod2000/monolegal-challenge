@@ -1,7 +1,4 @@
-import {
-  Client,
-  ClientValidationError,
-} from '../index.js';
+import { Client, ClientValidationError } from '../index.js';
 
 const validProps = {
   id: 'client-1',

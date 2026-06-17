@@ -11,33 +11,34 @@ import { InvoiceTable } from '@/components/InvoiceTable';
 import { InvoiceClientFilter } from '@/components/InvoiceClientFilter';
 import { KpiCard } from '@/components/KpiCard';
 import { StatusFilterBar } from '@/components/StatusFilter';
-import {
-  filterInvoices,
-  sortInvoices,
-  toggleSort,
-} from '@/lib/invoice-list-utils';
-import {
-  createClient,
-  deleteClient,
-  updateClient,
-  useClients,
-} from '@/hooks/useClients';
-import {
-  createInvoice,
-  updateInvoice,
-  useInvoices,
-} from '@/hooks/useInvoices';
+import { filterInvoices, sortInvoices, toggleSort } from '@/lib/invoice-list-utils';
+import { createClient, deleteClient, updateClient, useClients } from '@/hooks/useClients';
+import { createInvoice, updateInvoice, useInvoices } from '@/hooks/useInvoices';
 import { useProcessReminders } from '@/hooks/useProcessReminders';
 import type { Client } from '@/types/client';
-import type { Invoice, StatusFilter, ClientFilter, InvoiceSortState, InvoiceSortField } from '@/types/invoice';
+import type {
+  Invoice,
+  StatusFilter,
+  ClientFilter,
+  InvoiceSortState,
+  InvoiceSortField,
+} from '@/types/invoice';
 
 type Tab = 'invoices' | 'clients';
 
 export default function DashboardPage() {
-  const { invoices, loading: invoicesLoading, error: invoicesError, refetch: refetchInvoices } =
-    useInvoices();
-  const { clients, loading: clientsLoading, error: clientsError, refetch: refetchClients } =
-    useClients();
+  const {
+    invoices,
+    loading: invoicesLoading,
+    error: invoicesError,
+    refetch: refetchInvoices,
+  } = useInvoices();
+  const {
+    clients,
+    loading: clientsLoading,
+    error: clientsError,
+    refetch: refetchClients,
+  } = useClients();
   const {
     loading: remindersLoading,
     processingInvoiceId,
@@ -153,16 +154,10 @@ export default function DashboardPage() {
             <h1 className="mt-2 font-serif text-4xl text-brand-dark lg:text-5xl">
               Gestión de Facturación
             </h1>
-            <p className="mt-3 text-brand-muted">
-              Clientes, facturas y recordatorios de cobro
-            </p>
+            <p className="mt-3 text-brand-muted">Clientes, facturas y recordatorios de cobro</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => setShowCreateClient(true)}
-              className="btn-ghost"
-            >
+            <button type="button" onClick={() => setShowCreateClient(true)} className="btn-ghost">
               + Nuevo cliente
             </button>
             <button
@@ -216,22 +211,14 @@ export default function DashboardPage() {
           </button>
         </nav>
 
-        {error && (
-          <div className="alert-error mb-8">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert-error mb-8">{error}</div>}
 
-        {remindersError && (
-          <div className="alert-error mb-8">
-            {remindersError}
-          </div>
-        )}
+        {remindersError && <div className="alert-error mb-8">{remindersError}</div>}
 
         {remindersResult && (
           <div className="alert-success mb-8">
-            Recordatorios procesados: {remindersResult.processed} exitosos,{' '}
-            {remindersResult.failed} fallidos
+            Recordatorios procesados: {remindersResult.processed} exitosos, {remindersResult.failed}{' '}
+            fallidos
           </div>
         )}
 

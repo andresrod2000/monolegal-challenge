@@ -1,6 +1,15 @@
-import type { IClientRepository, IEmailProvider, IInvoiceRepository, ILogger } from '@monolegal/domain';
+import type {
+  IClientRepository,
+  IEmailProvider,
+  IInvoiceRepository,
+  ILogger,
+} from '@monolegal/domain';
 import type { Invoice } from '@monolegal/domain';
-import { ClientNotFoundError, InvoiceNotFoundError, InvoiceTransitionError } from '@monolegal/domain';
+import {
+  ClientNotFoundError,
+  InvoiceNotFoundError,
+  InvoiceTransitionError,
+} from '@monolegal/domain';
 import { REMINDER_STATUSES } from '@monolegal/shared';
 
 export interface ProcessInvoiceRemindersResult {
@@ -77,7 +86,9 @@ export class ProcessInvoiceRemindersUseCase {
   private async processInvoice(invoice: Invoice): Promise<void> {
     const client = await this.clientRepository.findById(invoice.clientId);
     if (!client) {
-      throw new ClientNotFoundError(`Client not found for invoice ${invoice.id}: ${invoice.clientId}`);
+      throw new ClientNotFoundError(
+        `Client not found for invoice ${invoice.id}: ${invoice.clientId}`,
+      );
     }
 
     const { email, nextStatus } = invoice.buildReminderPayload(client.name);

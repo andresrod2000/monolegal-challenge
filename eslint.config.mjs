@@ -5,7 +5,22 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['**/dist/**', '**/.next/**', '**/node_modules/**', '**/coverage/**'],
+    ignores: [
+      '**/dist/**',
+      '**/.next/**',
+      '**/node_modules/**',
+      '**/coverage/**',
+      '**/next-env.d.ts',
+    ],
+  },
+  {
+    files: ['scripts/**/*.js'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+      },
+    },
   },
   {
     rules: {

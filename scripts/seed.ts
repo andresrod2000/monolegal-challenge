@@ -1,11 +1,7 @@
 import 'dotenv/config';
 import { createContainer, disconnectMongoDB, loadConfigFromEnv } from '@monolegal/infrastructure';
 import type { SeedClientInput, SeedInvoiceInput } from '@monolegal/domain';
-import {
-  deriveStatusFromDueDate,
-  generateDummyInvoiceFields,
-  randomInt,
-} from '@monolegal/shared';
+import { deriveStatusFromDueDate, generateDummyInvoiceFields, randomInt } from '@monolegal/shared';
 
 const clients: SeedClientInput[] = [
   { id: 'client-acme', name: 'Acme Corp', email: 'billing@acme.com' },
