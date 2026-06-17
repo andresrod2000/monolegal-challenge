@@ -9,6 +9,8 @@
     "start": "node dist/main.js"
   },
   "dependencies": {
+    "@monolegal/application": "file:../../packages/application",
+    "@monolegal/domain": "file:../../packages/domain",
     "@monolegal/infrastructure": "file:../../packages/infrastructure",
     "@monolegal/shared": "file:../../packages/shared",
     "cors": "^2.8.5",

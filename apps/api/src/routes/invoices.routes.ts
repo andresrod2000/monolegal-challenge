@@ -1,17 +1,15 @@
 import { Router } from 'express';
-import type { Container } from '@monolegal/infrastructure';
+import type { GetInvoicesSummaryUseCase } from '@monolegal/application';
+import { toInvoiceSummaryDtoList } from '../mappers/invoice.mapper.js';
 
-export function createInvoicesRouter(container: Container): Router {
+export function createInvoicesRouter(getInvoicesSummaryUseCase: GetInvoicesSummaryUseCase): Router {
   const router = Router();
 
   router.get('/', async (_req, res, next) => {
     try {
-      const invoices = await container.getInvoicesSummaryUseCase.execute();
+      const invoices = await getInvoicesSummaryUseCase.execute();
       res.json({
-        data: invoices.map((invoice) => ({
-          ...invoice,
-          dueDate: invoice.dueDate.toISOString(),
-        })),
+        data: toInvoiceSummaryDtoList(invoices),
         meta: { total: invoices.length },
       });
     } catch (error) {

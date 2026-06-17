@@ -1,5 +1,16 @@
 import { InvoiceStatus, isValidInvoiceStatus } from '@monolegal/shared';
+import { InvoiceTransitionError, InvoiceValidationError } from '../errors/index.js';
 import type { InvoiceProps } from './invoice.types.js';
+
+export interface ReminderEmail {
+  subject: string;
+  body: string;
+}
+
+export interface ReminderPayload {
+  email: ReminderEmail;
+  nextStatus: InvoiceStatus;
+}
 
 export class Invoice {
   readonly id: string;
@@ -22,22 +33,22 @@ export class Invoice {
 
   static create(props: InvoiceProps): Invoice {
     if (!props.id?.trim()) {
-      throw new Error('Invoice id is required');
+      throw new InvoiceValidationError('Invoice id is required');
     }
     if (!props.clientId?.trim()) {
-      throw new Error('Invoice clientId is required');
+      throw new InvoiceValidationError('Invoice clientId is required');
     }
     if (!props.clientName?.trim()) {
-      throw new Error('Invoice clientName is required');
+      throw new InvoiceValidationError('Invoice clientName is required');
     }
     if (!props.clientEmail?.trim()) {
-      throw new Error('Invoice clientEmail is required');
+      throw new InvoiceValidationError('Invoice clientEmail is required');
     }
     if (props.amount <= 0) {
-      throw new Error('Invoice amount must be greater than zero');
+      throw new InvoiceValidationError('Invoice amount must be greater than zero');
     }
     if (!isValidInvoiceStatus(props.status)) {
-      throw new Error(`Invalid invoice status: ${props.status}`);
+      throw new InvoiceValidationError(`Invalid invoice status: ${props.status}`);
     }
     return new Invoice(props);
   }
@@ -73,10 +84,19 @@ export class Invoice {
     if (this.canSendSecondReminder()) {
       return InvoiceStatus.DESACTIVADO;
     }
-    throw new Error(`Invoice ${this.id} is not eligible for reminder processing`);
+    throw new InvoiceTransitionError(`Invoice ${this.id} is not eligible for reminder processing`);
   }
 
-  buildFirstReminderEmail(): { subject: string; body: string } {
+  buildReminderPayload(): ReminderPayload {
+    const nextStatus = this.getNextStatusAfterReminder();
+    const email = this.canSendFirstReminder()
+      ? this.buildFirstReminderEmail()
+      : this.buildSecondReminderEmail();
+
+    return { email, nextStatus };
+  }
+
+  buildFirstReminderEmail(): ReminderEmail {
     return {
       subject: `Recordatorio de pago — ${this.clientName}`,
       body: [
@@ -92,7 +112,7 @@ export class Invoice {
     };
   }
 
-  buildSecondReminderEmail(): { subject: string; body: string } {
+  buildSecondReminderEmail(): ReminderEmail {
     return {
       subject: `Último aviso — Desactivación inminente — ${this.clientName}`,
       body: [

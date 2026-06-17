@@ -1,5 +1,4 @@
-import type { IInvoiceRepository, InvoiceSummary } from '@monolegal/domain';
-import type { ILogger } from '@monolegal/shared';
+import type { IInvoiceRepository, InvoiceSummary, ILogger } from '@monolegal/domain';
 
 export class GetInvoicesSummaryUseCase {
   constructor(

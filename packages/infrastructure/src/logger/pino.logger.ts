@@ -1,5 +1,5 @@
 import pino from 'pino';
-import type { ILogger, LogContext } from '@monolegal/shared';
+import type { ILogger, LogContext } from '@monolegal/domain';
 
 export class PinoLogger implements ILogger {
   private logger: pino.Logger;

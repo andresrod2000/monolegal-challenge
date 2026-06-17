@@ -1,7 +1,6 @@
-import { Invoice } from '@monolegal/domain';
-import type { IEmailProvider } from '@monolegal/domain';
-import type { IInvoiceRepository } from '@monolegal/domain';
-import { REMINDER_STATUSES, type ILogger } from '@monolegal/shared';
+import type { IEmailProvider, IInvoiceRepository, ILogger } from '@monolegal/domain';
+import type { Invoice } from '@monolegal/domain';
+import { REMINDER_STATUSES } from '@monolegal/shared';
 
 export interface ProcessInvoiceRemindersResult {
   processed: number;
@@ -25,16 +24,16 @@ export class ProcessInvoiceRemindersUseCase {
     let processed = 0;
     let failed = 0;
 
-    for (const invoiceProps of invoices) {
+    for (const invoice of invoices) {
       try {
-        await this.processInvoice(invoiceProps);
+        await this.processInvoice(invoice);
         processed++;
       } catch (error) {
         failed++;
         this.logger.error('Failed to process invoice reminder', {
-          invoiceId: invoiceProps.id,
-          clientName: invoiceProps.clientName,
-          status: invoiceProps.status,
+          invoiceId: invoice.id,
+          clientName: invoice.clientName,
+          status: invoice.status,
           error: error instanceof Error ? error.message : String(error),
         });
       }
@@ -45,21 +44,28 @@ export class ProcessInvoiceRemindersUseCase {
     return { processed, failed };
   }
 
-  private async processInvoice(invoiceProps: Parameters<typeof Invoice.fromProps>[0]): Promise<void> {
-    const invoice = Invoice.fromProps(invoiceProps);
-    const nextStatus = invoice.getNextStatusAfterReminder();
-
-    const emailContent = invoice.canSendFirstReminder()
-      ? invoice.buildFirstReminderEmail()
-      : invoice.buildSecondReminderEmail();
+  private async processInvoice(invoice: Invoice): Promise<void> {
+    const { email, nextStatus } = invoice.buildReminderPayload();
 
     await this.emailProvider.sendReminder({
       to: invoice.clientEmail,
-      subject: emailContent.subject,
-      body: emailContent.body,
+      subject: email.subject,
+      body: email.body,
     });
 
-    await this.invoiceRepository.updateStatus(invoice.id, nextStatus);
+    try {
+      await this.invoiceRepository.updateStatus(invoice.id, nextStatus);
+    } catch (error) {
+      this.logger.warn('Email sent but status update failed', {
+        invoiceId: invoice.id,
+        clientName: invoice.clientName,
+        previousStatus: invoice.status,
+        targetStatus: nextStatus,
+        emailAlreadySent: true,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      throw error;
+    }
 
     this.logger.info('Invoice reminder sent and status updated', {
       invoiceId: invoice.id,

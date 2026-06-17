@@ -1,9 +1,11 @@
 import 'dotenv/config';
 import {
-  connectMongoDB,
+  createContainer,
   disconnectMongoDB,
-  getInvoiceModel,
+  loadConfigFromEnv,
+  MongoInvoiceSeeder,
 } from '@monolegal/infrastructure';
+import type { SeedInvoiceInput } from '@monolegal/domain';
 import { InvoiceStatus } from '@monolegal/shared';
 
 interface SeedClient {
@@ -12,22 +14,13 @@ interface SeedClient {
   email: string;
 }
 
-interface SeedInvoice {
-  clientId: string;
-  clientName: string;
-  clientEmail: string;
-  amount: number;
-  dueDate: Date;
-  status: InvoiceStatus;
-}
-
 const clients: SeedClient[] = [
   { id: 'client-acme', name: 'Acme Corp', email: 'billing@acme.com' },
   { id: 'client-legaltech', name: 'LegalTech SA', email: 'finanzas@legaltech.co' },
   { id: 'client-consultores', name: 'Consultores XYZ', email: 'pagos@consultoresxyz.com' },
 ];
 
-function buildInvoices(): SeedInvoice[] {
+function buildInvoices(): SeedInvoiceInput[] {
   const now = new Date();
   const daysAgo = (days: number): Date => {
     const date = new Date(now);
@@ -36,7 +29,6 @@ function buildInvoices(): SeedInvoice[] {
   };
 
   return [
-    // Acme Corp — 5 facturas
     {
       clientId: clients[0].id,
       clientName: clients[0].name,
@@ -77,7 +69,6 @@ function buildInvoices(): SeedInvoice[] {
       dueDate: daysAgo(2),
       status: InvoiceStatus.AL_DIA,
     },
-    // LegalTech SA — 5 facturas
     {
       clientId: clients[1].id,
       clientName: clients[1].name,
@@ -118,7 +109,6 @@ function buildInvoices(): SeedInvoice[] {
       dueDate: daysAgo(1),
       status: InvoiceStatus.PRIMER_RECORDATORIO,
     },
-    // Consultores XYZ — 5 facturas
     {
       clientId: clients[2].id,
       clientName: clients[2].name,
@@ -163,22 +153,21 @@ function buildInvoices(): SeedInvoice[] {
 }
 
 async function seed(): Promise<void> {
-  const uri = process.env.MONGODB_URI ?? 'mongodb://localhost:27017/monolegal';
-  await connectMongoDB(uri);
-
-  const Invoice = getInvoiceModel();
-  await Invoice.deleteMany({});
-
+  const container = await createContainer(loadConfigFromEnv('seed'));
+  const seeder = new MongoInvoiceSeeder();
   const invoices = buildInvoices();
-  await Invoice.insertMany(invoices);
-
-  console.log(`Seed completed: ${clients.length} clients, ${invoices.length} invoices inserted.`);
+  const inserted = await seeder.resetAndSeed(invoices);
 
   const statusCounts = invoices.reduce<Record<string, number>>((acc, inv) => {
     acc[inv.status] = (acc[inv.status] ?? 0) + 1;
     return acc;
   }, {});
-  console.log('Status distribution:', statusCounts);
+
+  container.logger.info('Seed completed', {
+    clients: clients.length,
+    invoices: inserted,
+    statusDistribution: statusCounts,
+  });
 
   await disconnectMongoDB();
 }

@@ -1,24 +1,26 @@
-import { InvoiceStatus, type ILogger } from '@monolegal/shared';
-import type { IEmailProvider } from '@monolegal/domain';
-import type { IInvoiceRepository, InvoiceProps } from '@monolegal/domain';
+import { Invoice } from '@monolegal/domain';
+import type { IEmailProvider, IInvoiceRepository, ILogger, InvoiceProps } from '@monolegal/domain';
+import { InvoiceStatus } from '@monolegal/shared';
 import { ProcessInvoiceRemindersUseCase } from '../process-invoice-reminders.use-case.js';
 
-function createInvoice(overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>): InvoiceProps {
-  return {
+function createInvoice(overrides: Partial<InvoiceProps> & Pick<InvoiceProps, 'id' | 'status'>): Invoice {
+  return Invoice.create({
     clientId: 'client-1',
     clientName: 'Acme Corp',
     clientEmail: 'billing@acme.com',
     amount: 150000,
     dueDate: new Date('2026-05-01'),
     ...overrides,
-  };
+  });
 }
 
-function createMockRepository(invoices: InvoiceProps[] = []): jest.Mocked<IInvoiceRepository> {
-  const store = [...invoices];
+function createMockRepository(invoices: Invoice[] = []): jest.Mocked<IInvoiceRepository> {
+  const store = invoices.map((inv) => inv.toProps());
   return {
     findByStatus: jest.fn(async (statuses) =>
-      store.filter((inv) => statuses.includes(inv.status)),
+      store
+        .filter((inv) => statuses.includes(inv.status))
+        .map((props) => Invoice.fromProps(props)),
     ),
     findAll: jest.fn(async () => store),
     updateStatus: jest.fn(async (id, status) => {
@@ -160,5 +162,26 @@ describe('ProcessInvoiceRemindersUseCase', () => {
       InvoiceStatus.SEGUNDO_RECORDATORIO,
     );
     expect(repository.updateStatus).toHaveBeenCalledWith('inv-b', InvoiceStatus.DESACTIVADO);
+  });
+
+  it('should warn when email is sent but status update fails', async () => {
+    const invoice = createInvoice({
+      id: 'inv-1',
+      status: InvoiceStatus.PRIMER_RECORDATORIO,
+    });
+    const repository = createMockRepository([invoice]);
+    repository.updateStatus.mockRejectedValue(new Error('DB unavailable'));
+    const emailProvider = createMockEmailProvider();
+    const logger = createMockLogger();
+
+    const useCase = new ProcessInvoiceRemindersUseCase(repository, emailProvider, logger);
+    const result = await useCase.execute();
+
+    expect(result).toEqual({ processed: 0, failed: 1 });
+    expect(emailProvider.sendReminder).toHaveBeenCalled();
+    expect(logger.warn).toHaveBeenCalledWith(
+      'Email sent but status update failed',
+      expect.objectContaining({ emailAlreadySent: true, invoiceId: 'inv-1' }),
+    );
   });
 });
