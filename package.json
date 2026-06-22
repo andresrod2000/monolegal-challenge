@@ -4,6 +4,7 @@
   "private": true,
   "description": "Sistema de automatización de notificaciones de facturación - Reto Monolegal",
   "scripts": {
+    "postinstall": "npm ci --prefix apps/frontend",
     "build": "npm run build:dotnet && npm run build --prefix apps/frontend",
     "build:dotnet": "dotnet build backend/dotnet/Monolegal.sln",
     "test": "dotnet test backend/dotnet/Monolegal.sln",
