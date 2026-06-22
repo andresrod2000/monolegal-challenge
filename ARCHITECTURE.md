@@ -78,18 +78,18 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 ![Stack backend — Node.js, Express, packages y adaptadores](docs/diagrams/04-stack-backend.png)
 
-| Tecnología     | Versión | Rol         | Por qué esta elección                                                                      | Alternativa descartada                                                                                      |
-| -------------- | ------- | ----------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **Node.js**    | ≥ 20    | Runtime (frontend)     | Migrado a .NET 8 para API y Worker |
-| **.NET**       | 8.0     | Backend API + Worker   | ASP.NET Core + Worker Service + xUnit |
-| **TypeScript** | 5.7     | Lenguaje (frontend)    | Tipado estático en capas frontend |
-| **Express**    | —       | —                      | Reemplazado por ASP.NET Core Minimal APIs |
-| **Mongoose**   | 8.9     | ODM MongoDB | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries           | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado)                                            |
-| **Nodemailer** | 6.9     | Email SMTP  | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider`         | SendGrid SDK (requerimiento del reto: Gmail propio)                                                         |
-| **Pino**       | 9.6     | Logging     | JSON nativo, alto rendimiento, bajo overhead en worker cron                                | Winston (más lento); console.log (no estructurado)                                                          |
-| **node-cron**  | 3.0     | Scheduler   | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                                   | BullMQ (requiere Redis, overkill para 1 job/día)                                                            |
-| **tsx**        | 4.19    | Dev runner  | Hot reload en API/worker sin compilar en cada cambio                                       | nodemon + tsc (más lento)                                                                                   |
-| **Jest**       | —       | —                      | Reemplazado por xUnit + Moq en backend .NET |
+| Tecnología     | Versión | Rol                  | Por qué esta elección                                                              | Alternativa descartada                                           |
+| -------------- | ------- | -------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Node.js**    | ≥ 20    | Runtime (frontend)   | Migrado a .NET 8 para API y Worker                                                 |
+| **.NET**       | 8.0     | Backend API + Worker | ASP.NET Core + Worker Service + xUnit                                              |
+| **TypeScript** | 5.7     | Lenguaje (frontend)  | Tipado estático en capas frontend                                                  |
+| **Express**    | —       | —                    | Reemplazado por ASP.NET Core Minimal APIs                                          |
+| **Mongoose**   | 8.9     | ODM MongoDB          | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries   | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado) |
+| **Nodemailer** | 6.9     | Email SMTP           | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider` | SendGrid SDK (requerimiento del reto: Gmail propio)              |
+| **Pino**       | 9.6     | Logging              | JSON nativo, alto rendimiento, bajo overhead en worker cron                        | Winston (más lento); console.log (no estructurado)               |
+| **node-cron**  | 3.0     | Scheduler            | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                           | BullMQ (requiere Redis, overkill para 1 job/día)                 |
+| **tsx**        | 4.19    | Dev runner           | Hot reload en API/worker sin compilar en cada cambio                               | nodemon + tsc (más lento)                                        |
+| **Jest**       | —       | —                    | Reemplazado por xUnit + Moq en backend .NET                                        |
 
 #### Frontend
 
