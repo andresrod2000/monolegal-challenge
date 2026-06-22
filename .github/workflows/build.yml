@@ -69,6 +69,9 @@ jobs:
               return 1
             }
             pull_retry node:20-alpine
+            pull_retry mcr.microsoft.com/dotnet/sdk:8.0
+            pull_retry mcr.microsoft.com/dotnet/aspnet:8.0
+            pull_retry mcr.microsoft.com/dotnet/runtime:8.0
           '
 
       - name: Build & Push on EC2

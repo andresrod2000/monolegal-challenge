@@ -1,20 +1,15 @@
-# ── Stage 1: Dependencies (shared package only) ──
+# ── Stage 1: Dependencies ──
 FROM node:20-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json* ./
-COPY scripts/docker-install-deps.js scripts/link-workspaces.js ./scripts/
-COPY packages/shared/package.json ./packages/shared/
-RUN node scripts/docker-install-deps.js
+COPY apps/frontend/package.json apps/frontend/package-lock.json* ./apps/frontend/
+RUN npm ci --prefix apps/frontend
 
 # ── Stage 2: Build ──
 FROM node:20-alpine AS build
 WORKDIR /app
-COPY --from=deps /app ./
-COPY . .
-RUN node scripts/link-workspaces.js \
-  && npm install --ignore-scripts --prefix apps/frontend \
-  && npm run build --prefix packages/shared \
-  && npm run build --prefix apps/frontend
+COPY --from=deps /app/apps/frontend/node_modules ./apps/frontend/node_modules
+COPY apps/frontend ./apps/frontend
+RUN npm run build --prefix apps/frontend
 
 # ── Stage 3: Production ──
 FROM node:20-alpine AS production
