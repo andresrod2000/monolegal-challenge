@@ -11,6 +11,7 @@ export default tseslint.config(
       '**/node_modules/**',
       '**/coverage/**',
       '**/next-env.d.ts',
+      'backend/dotnet/**',
       'scripts/fix-diagrams.mjs',
     ],
   },

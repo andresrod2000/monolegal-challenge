@@ -10,6 +10,7 @@ Pasos exactos para que el equipo técnico de Monolegal levante la infraestructur
 | -------------- | -------------- | ------------------------ |
 | Docker         | 24+            | `docker --version`       |
 | Docker Compose | v2+            | `docker compose version` |
+| .NET SDK       | 8.0            | `dotnet --version`       |
 | Node.js        | 20 LTS         | `node --version`         |
 | npm            | 10+            | `npm --version`          |
 | Git            | 2+             | `git --version`          |
@@ -62,11 +63,13 @@ API_URL=http://localhost:4000
 npm install
 ```
 
-### 4.2 Compilar paquetes
+### 4.2 Compilar
 
 ```bash
 npm run build
 ```
+
+Compila la solución .NET (`backend/dotnet/`) y el frontend Next.js.
 
 ### 4.3 Levantar MongoDB
 
@@ -123,12 +126,12 @@ npm run dev:frontend
 npm test
 ```
 
-Pruebas unitarias con Jest en `packages/application`. Usan mocks — no requieren MongoDB ni Gmail.
+Ejecuta `dotnet test` en `backend/dotnet/`. Los tests usan mocks — no requieren MongoDB ni Gmail en CI.
 
-Cobertura:
+Cobertura (opcional):
 
 ```bash
-npm run test:coverage --prefix packages/application
+dotnet test backend/dotnet/Monolegal.sln --collect:"XPlat Code Coverage"
 ```
 
 ---
@@ -187,14 +190,11 @@ docker stack ps monolegal
 ### 6.5 Ejecutar seed en el stack
 
 ```bash
-# Obtener ID del contenedor de API
-CONTAINER=$(docker ps -q -f name=monolegal_api | head -1)
-
-# Ejecutar seed (requiere tsx en imagen o usar contenedor temporal)
 docker run --rm --network monolegal_monolegal-net \
   -e MONGODB_URI=mongodb://mongodb:27017/monolegal \
-  -v $(pwd):/app -w /app node:20-alpine \
-  sh -c "npm install && npm run seed"
+  -v $(pwd)/backend/dotnet:/src -w /src \
+  mcr.microsoft.com/dotnet/sdk:8.0 \
+  dotnet run --project src/Monolegal.Seed
 ```
 
 Alternativa local antes del deploy:
@@ -202,8 +202,6 @@ Alternativa local antes del deploy:
 ```bash
 MONGODB_URI=mongodb://localhost:27017/monolegal npm run seed
 ```
-
-(con MongoDB del stack expuesto o accesible)
 
 ### 6.6 Acceder a la aplicación
 
@@ -308,8 +306,8 @@ docker volume rm monolegal_mongo-data  # si se desea limpiar datos
 
 ## 9. Checklist de entrega
 
-- [ ] `npm install && npm run build` compila sin errores
-- [ ] `npm test` — todos los tests pasan
+- [ ] `npm install && npm run build` compila backend .NET y frontend
+- [ ] `npm test` — todos los tests .NET pasan
 - [ ] `npm run seed` — 15 facturas en 3 clientes
 - [ ] Dashboard en http://localhost:3000 muestra KPIs y tabla
 - [ ] Worker procesa recordatorios (logs visibles)

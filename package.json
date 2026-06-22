@@ -4,18 +4,17 @@
   "private": true,
   "description": "Sistema de automatización de notificaciones de facturación - Reto Monolegal",
   "scripts": {
-    "build": "npm run build:packages && npm run build --prefix apps/api && npm run build --prefix apps/worker && npm run build --prefix apps/frontend",
-    "build:packages": "npm run build --prefix packages/shared && npm run build --prefix packages/domain && npm run build --prefix packages/application && npm run build --prefix packages/infrastructure",
-    "test": "npm run test --prefix packages/shared && npm run test --prefix packages/domain && npm run test --prefix packages/application",
+    "build": "npm run build:dotnet && npm run build --prefix apps/frontend",
+    "build:dotnet": "dotnet build backend/dotnet/Monolegal.sln",
+    "test": "dotnet test backend/dotnet/Monolegal.sln",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "ci": "npm run lint && npm run format:check && npm run build && npm test",
     "diagrams": "node scripts/fix-diagrams.mjs",
-    "seed": "npm run build:packages && node scripts/link-workspaces.js && tsx scripts/seed.ts",
-    "postinstall": "node scripts/install-workspaces.js",
-    "dev:api": "npm run dev --prefix apps/api",
-    "dev:worker": "npm run dev --prefix apps/worker",
+    "seed": "dotnet run --project backend/dotnet/src/Monolegal.Seed",
+    "dev:api": "dotnet run --project backend/dotnet/src/Monolegal.Api",
+    "dev:worker": "dotnet run --project backend/dotnet/src/Monolegal.Worker",
     "dev:frontend": "npm run dev --prefix apps/frontend"
   },
   "devDependencies": {
@@ -25,7 +24,6 @@
     "dotenv": "^17.4.2",
     "eslint": "^9.17.0",
     "prettier": "^3.4.2",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1"
   },

@@ -4,10 +4,10 @@ Sistema de gestión de facturación, clientes, recordatorios automáticos y dash
 
 ## Stack
 
-- **Backend & Worker:** Node.js + TypeScript
+- **Backend & Worker:** .NET 8 (ASP.NET Core + Worker Service)
 - **Base de datos:** MongoDB
 - **Frontend:** Next.js (React)
-- **Tests:** Jest
+- **Tests:** xUnit (.NET) + ESLint/Prettier (frontend)
 - **Despliegue:** Docker, Docker Swarm, Traefik
 
 ## Capacidades
@@ -28,16 +28,13 @@ Sistema de gestión de facturación, clientes, recordatorios automáticos y dash
 ## Estructura del monorepo
 
 ```
-packages/shared         → Tipos y enums compartidos
-packages/domain         → Entidades Client/Invoice, ports y errores
-packages/application    → Casos de uso (CRUD + recordatorios)
-packages/infrastructure → Adaptadores (MongoDB, Gmail, DI)
-apps/api                → REST API
-apps/worker             → Cron job de recordatorios
-apps/frontend           → Dashboard Next.js
+backend/dotnet/         → Solución .NET (Shared, Domain, Application, Infrastructure, Api, Worker, Seed)
+apps/frontend/          → Dashboard Next.js
 ```
 
 ## Inicio rápido (desarrollo)
+
+Requisitos: **.NET 8 SDK**, **Node.js 20**, MongoDB.
 
 ```bash
 npm install
@@ -45,10 +42,10 @@ npm run build
 cp .env.example .env
 # Configurar GMAIL_USER y GMAIL_APP_PASSWORD si EMAIL_PROVIDER=gmail
 npm run seed          # Re-ejecutar tras cambios de schema
-npm run dev:api      # Puerto 4000
-npm run dev:worker   # Cron + procesamiento
-npm run dev:frontend # Puerto 3000
-npm test
+npm run dev:api       # API .NET en puerto 4000
+npm run dev:worker    # Worker .NET (cron)
+npm run dev:frontend  # Puerto 3000
+npm test              # dotnet test
 ```
 
 ## CI/CD
@@ -59,10 +56,10 @@ Workflow [`.github/workflows/ci.yml`](.github/workflows/ci.yml) — se ejecuta e
 
 Valida en cada ejecución:
 
-- `npm run lint` — ESLint en el monorepo
+- `npm run lint` — ESLint (frontend y scripts)
 - `npm run format:check` — formato Prettier
-- `npm run build` — compilación de packages, API, worker y frontend
-- `npm test` — tests unitarios Jest (sin MongoDB ni Gmail)
+- `dotnet build` + `dotnet test` — backend .NET
+- `npm run build --prefix apps/frontend` — frontend Next.js
 
 Reproducir localmente:
 

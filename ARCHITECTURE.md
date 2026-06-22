@@ -80,15 +80,16 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 | Tecnología     | Versión | Rol         | Por qué esta elección                                                                      | Alternativa descartada                                                                                      |
 | -------------- | ------- | ----------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| **Node.js**    | ≥ 20    | Runtime     | Ecosistema maduro para I/O async (MongoDB, SMTP, cron); mismo lenguaje en todo el monorepo | Deno/Bun (menor adopción en equipos enterprise)                                                             |
-| **TypeScript** | 5.7     | Lenguaje    | Tipado estático en capas, ports e interfaces; refactors seguros en monorepo                | JavaScript puro (menos seguridad en contratos entre capas)                                                  |
-| **Express**    | 4.21    | HTTP API    | CRUD REST simple sin ceremonia; routers delgados que delegan a use cases                   | NestJS (más boilerplate y acoplamiento al framework); Fastify (menor familiaridad, beneficio marginal aquí) |
+| **Node.js**    | ≥ 20    | Runtime (frontend)     | Migrado a .NET 8 para API y Worker |
+| **.NET**       | 8.0     | Backend API + Worker   | ASP.NET Core + Worker Service + xUnit |
+| **TypeScript** | 5.7     | Lenguaje (frontend)    | Tipado estático en capas frontend |
+| **Express**    | —       | —                      | Reemplazado por ASP.NET Core Minimal APIs |
 | **Mongoose**   | 8.9     | ODM MongoDB | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries           | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado)                                            |
 | **Nodemailer** | 6.9     | Email SMTP  | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider`         | SendGrid SDK (requerimiento del reto: Gmail propio)                                                         |
 | **Pino**       | 9.6     | Logging     | JSON nativo, alto rendimiento, bajo overhead en worker cron                                | Winston (más lento); console.log (no estructurado)                                                          |
 | **node-cron**  | 3.0     | Scheduler   | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                                   | BullMQ (requiere Redis, overkill para 1 job/día)                                                            |
 | **tsx**        | 4.19    | Dev runner  | Hot reload en API/worker sin compilar en cada cambio                                       | nodemon + tsc (más lento)                                                                                   |
-| **Jest**       | —       | Tests       | Estándar en ecosistema Node; mocks de ports sin MongoDB/Gmail en CI                        | Vitest (válido, pero Jest más universal en evaluaciones)                                                    |
+| **Jest**       | —       | —                      | Reemplazado por xUnit + Moq en backend .NET |
 
 #### Frontend
 
@@ -616,20 +617,13 @@ Errores de dominio mapeados a HTTP: validación → 400, not found → 404.
 
 ```
 monolegal-challenge/
-├── packages/
-│   ├── shared/           # Enums y tipos compartidos (shared kernel)
-│   ├── domain/           # Entidades, errores de dominio y ports
-│   ├── application/      # Casos de uso + tests Jest
-│   └── infrastructure/   # Adaptadores + DI container
-├── apps/
-│   ├── api/              # REST API (Express)
-│   ├── worker/           # Cron job
-│   └── frontend/         # Next.js dashboard
+├── backend/dotnet/       → Solución .NET (Shared, Domain, Application, Infrastructure, Api, Worker, Seed)
+├── apps/frontend/        → Next.js dashboard
 ├── docs/
-│   └── diagrams/         # Diagramas SVG (fuente) + PNG (preview Markdown)
-├── scripts/              # Seed de datos
-├── docker/               # Dockerfiles multi-stage
-├── docker-compose.yml    # Swarm + Traefik
+│   └── diagrams/         → Diagramas SVG (fuente) + PNG (preview Markdown)
+├── scripts/              → Utilidades (diagramas)
+├── docker/               → Dockerfiles multi-stage
+├── docker-compose.yml    → Swarm + Traefik
 ├── ARCHITECTURE.md
 └── DEPLOYMENT.md
 ```

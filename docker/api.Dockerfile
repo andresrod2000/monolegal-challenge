@@ -1,48 +1,17 @@
-# ── Stage 1: Dependencies (packages only; apps install after full source copy) ──
-FROM node:20-alpine AS deps
+# ── Stage 1: Build ──
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY backend/dotnet/ ./
+RUN dotnet restore Monolegal.sln \
+    && dotnet publish src/Monolegal.Api/Monolegal.Api.csproj -c Release -o /app/publish --no-restore
+
+# ── Stage 2: Production ──
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS production
 WORKDIR /app
-COPY package.json package-lock.json* ./
-COPY scripts/docker-install-deps.js scripts/link-workspaces.js ./scripts/
-COPY packages/shared/package.json ./packages/shared/
-COPY packages/domain/package.json ./packages/domain/
-COPY packages/application/package.json ./packages/application/
-COPY packages/infrastructure/package.json ./packages/infrastructure/
-RUN node scripts/docker-install-deps.js
-
-# ── Stage 2: Build ──
-FROM node:20-alpine AS build
-WORKDIR /app
-COPY --from=deps /app ./
-COPY . .
-RUN node scripts/link-workspaces.js \
-  && npm install --ignore-scripts --prefix apps/api \
-  && npm run build:packages \
-  && npm run build --prefix apps/api
-
-# ── Stage 3: Production ──
-FROM node:20-alpine AS production
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
-WORKDIR /app
-ENV NODE_ENV=production
-
-COPY --from=build /app/apps/api/dist ./apps/api/dist
-COPY --from=build /app/apps/api/package.json ./apps/api/package.json
-COPY --from=build /app/packages/shared/dist ./packages/shared/dist
-COPY --from=build /app/packages/shared/package.json ./packages/shared/package.json
-COPY --from=build /app/packages/domain/dist ./packages/domain/dist
-COPY --from=build /app/packages/domain/package.json ./packages/domain/package.json
-COPY --from=build /app/packages/application/dist ./packages/application/dist
-COPY --from=build /app/packages/application/package.json ./packages/application/package.json
-COPY --from=build /app/packages/infrastructure/dist ./packages/infrastructure/dist
-COPY --from=build /app/packages/infrastructure/package.json ./packages/infrastructure/package.json
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/packages/infrastructure/node_modules ./packages/infrastructure/node_modules
-COPY --from=build /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=build /app/package.json ./package.json
-
-USER nodejs
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV API_PORT=4000
+COPY --from=build /app/publish .
 EXPOSE 4000
-WORKDIR /app/apps/api
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget -qO- http://localhost:4000/health || exit 1
-CMD ["node", "dist/main.js"]
+ENTRYPOINT ["dotnet", "Monolegal.Api.dll"]
