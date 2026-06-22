@@ -22,17 +22,17 @@ tests/
 
 ## Variables de entorno
 
-| Variable Node (`.env`) | Equivalente .NET |
-|---|---|
-| `MONGODB_URI` | `MONGODB_URI` o `ConnectionStrings__MongoDb` |
-| `EMAIL_PROVIDER` | `EMAIL_PROVIDER` o `Email__Provider` |
-| `GMAIL_USER` | `GMAIL_USER` o `Email__GmailUser` |
-| `GMAIL_APP_PASSWORD` | `GMAIL_APP_PASSWORD` o `Email__GmailAppPassword` |
-| `API_PORT` | `API_PORT` (default `4000`) |
-| `CORS_ORIGIN` | `CORS_ORIGIN` o `Cors__Origin` |
-| `CRON_SCHEDULE` | `CRON_SCHEDULE` o `Worker__CronSchedule` |
-| `RUN_ON_START` | `RUN_ON_START` o `Worker__RunOnStart` |
-| `LOG_LEVEL` | `LOG_LEVEL` o `Serilog__MinimumLevel` |
+| Variable Node (`.env`) | Equivalente .NET                                 |
+| ---------------------- | ------------------------------------------------ |
+| `MONGODB_URI`          | `MONGODB_URI` o `ConnectionStrings__MongoDb`     |
+| `EMAIL_PROVIDER`       | `EMAIL_PROVIDER` o `Email__Provider`             |
+| `GMAIL_USER`           | `GMAIL_USER` o `Email__GmailUser`                |
+| `GMAIL_APP_PASSWORD`   | `GMAIL_APP_PASSWORD` o `Email__GmailAppPassword` |
+| `API_PORT`             | `API_PORT` (default `4000`)                      |
+| `CORS_ORIGIN`          | `CORS_ORIGIN` o `Cors__Origin`                   |
+| `CRON_SCHEDULE`        | `CRON_SCHEDULE` o `Worker__CronSchedule`         |
+| `RUN_ON_START`         | `RUN_ON_START` o `Worker__RunOnStart`            |
+| `LOG_LEVEL`            | `LOG_LEVEL` o `Serilog__MinimumLevel`            |
 
 ## Comandos
 
