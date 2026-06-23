@@ -4,7 +4,7 @@
   <rect width="720" height="400" fill="#f8fafc"/>
   <text x="360" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Dependencias entre paquetes</text>
   <text x="360" y="52" text-anchor="middle" font-size="12" fill="#64748b">Flechas = depende de (hacia abajo)</text>
-  <g filter="url(#s)"><rect x="260" y="70" width="200" height="44" rx="8" fill="#64748b"/><text x="360" y="98" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">apps (api | worker | frontend)</text></g>
+  <g filter="url(#s)"><rect x="260" y="70" width="200" height="44" rx="8" fill="#64748b"/><text x="360" y="98" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">Api | Worker | Frontend</text></g>
   <line x1="360" y1="114" x2="360" y2="138" stroke="#475569" stroke-width="2"/>
   <g filter="url(#s)"><rect x="230" y="140" width="260" height="44" rx="8" fill="#ea580c"/><text x="360" y="168" text-anchor="middle" font-size="13" font-weight="600" fill="#fff">infrastructure (adaptadores + DI)</text></g>
   <line x1="360" y1="184" x2="360" y2="208" stroke="#475569" stroke-width="2"/>

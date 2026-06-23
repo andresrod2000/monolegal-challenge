@@ -5,7 +5,7 @@
   <text x="400" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="#0f172a">Composition Root - Inyeccion de dependencias</text>
   <g filter="url(#s)"><rect x="320" y="55" width="160" height="44" rx="8" fill="#64748b"/><text x="400" y="83" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Variables .env</text></g>
   <line x1="400" y1="99" x2="400" y2="118" stroke="#94a3b8" stroke-width="2"/>
-  <g filter="url(#s)"><rect x="280" y="120" width="240" height="50" rx="10" fill="#ea580c"/><text x="400" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">createContainer()</text></g>
+  <g filter="url(#s)"><rect x="280" y="120" width="240" height="50" rx="10" fill="#ea580c"/><text x="400" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">AddMonolegalInfrastructure()</text></g>
   <line x1="400" y1="170" x2="400" y2="195" stroke="#94a3b8" stroke-width="2"/>
   <g filter="url(#s)">
     <rect x="60" y="200" width="150" height="44" rx="8" fill="#14532d" stroke="#22c55e"/>
@@ -21,12 +21,12 @@
   </g>
   <g filter="url(#s)">
     <rect x="570" y="200" width="150" height="44" rx="8" fill="#14532d" stroke="#22c55e"/>
-    <text x="645" y="227" text-anchor="middle" font-size="11" fill="#bbf7d0">Pino Logger</text>
+    <text x="645" y="227" text-anchor="middle" font-size="11" fill="#bbf7d0">Serilog Logger</text>
   </g>
   <line x1="475" y1="244" x2="475" y2="275" stroke="#94a3b8" stroke-width="2"/>
-  <g filter="url(#s)"><rect x="350" y="278" width="250" height="44" rx="8" fill="#2563eb"/><text x="475" y="305" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">toApiDependencies() - ISP</text></g>
+  <g filter="url(#s)"><rect x="350" y="278" width="250" height="44" rx="8" fill="#2563eb"/><text x="475" y="305" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">ApiDependencies - ISP</text></g>
   <line x1="400" y1="322" x2="250" y2="355" stroke="#94a3b8" stroke-width="2"/>
   <line x1="550" y1="322" x2="550" y2="355" stroke="#94a3b8" stroke-width="2"/>
-  <g filter="url(#s)"><rect x="130" y="358" width="180" height="44" rx="8" fill="#1e293b"/><text x="220" y="385" text-anchor="middle" font-size="12" fill="#fff">Express createApp</text></g>
-  <g filter="url(#s)"><rect x="490" y="358" width="180" height="44" rx="8" fill="#1e293b"/><text x="580" y="385" text-anchor="middle" font-size="12" fill="#fff">Worker Cron</text></g>
+  <g filter="url(#s)"><rect x="130" y="358" width="180" height="44" rx="8" fill="#1e293b"/><text x="220" y="385" text-anchor="middle" font-size="12" fill="#fff">Monolegal.Api</text></g>
+  <g filter="url(#s)"><rect x="490" y="358" width="180" height="44" rx="8" fill="#1e293b"/><text x="580" y="385" text-anchor="middle" font-size="12" fill="#fff">Monolegal.Worker</text></g>
 </svg>

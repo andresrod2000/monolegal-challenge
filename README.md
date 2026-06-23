@@ -84,7 +84,7 @@ Ver ejecuciones en la pestaña **Actions** del repositorio.
 | Hito | Estado | Descripción                                                    |
 | ---- | ------ | -------------------------------------------------------------- |
 | 1    | ✅     | Estructura base, ARCHITECTURE.md, interfaces DI                |
-| 2    | ✅     | Dominio, casos de uso, tests Jest                              |
+| 2    | ✅     | Dominio, casos de uso, tests xUnit                               |
 | 3    | ✅     | MongoDB, Gmail, seed, worker, API                              |
 | 4    | ✅     | Dashboard Next.js                                              |
 | 5    | ✅     | Docker, Swarm, Traefik, DEPLOYMENT.md                          |

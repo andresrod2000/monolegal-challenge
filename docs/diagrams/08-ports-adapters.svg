@@ -13,7 +13,7 @@
 
   <g filter="url(#shadow)">
     <rect x="60" y="80" width="140" height="50" rx="8" fill="#dbeafe" stroke="#2563eb"/>
-    <text x="130" y="110" text-anchor="middle" font-size="12" fill="#1e40af">Express API</text>
+    <text x="130" y="110" text-anchor="middle" font-size="12" fill="#1e40af">ASP.NET API</text>
   </g>
   <g filter="url(#shadow)">
     <rect x="60" y="280" width="140" height="50" rx="8" fill="#dbeafe" stroke="#2563eb"/>
@@ -31,7 +31,7 @@
   </g>
   <g filter="url(#shadow)">
     <rect x="680" y="250" width="160" height="50" rx="8" fill="#ffedd5" stroke="#ea580c"/>
-    <text x="760" y="280" text-anchor="middle" font-size="11" fill="#9a3412">Pino Logger</text>
+    <text x="760" y="280" text-anchor="middle" font-size="11" fill="#9a3412">Serilog Logger</text>
   </g>
   <text x="760" y="330" text-anchor="middle" font-size="10" font-weight="600" fill="#64748b">Driven Adapters</text>
 

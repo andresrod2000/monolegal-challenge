@@ -5,63 +5,61 @@
   </defs>
   <rect width="920" height="480" fill="#0f172a"/>
   <text x="460" y="42" text-anchor="middle" font-size="22" font-weight="700" fill="#f8fafc">Stack Backend &amp; Worker</text>
-  <text x="460" y="66" text-anchor="middle" font-size="13" fill="#94a3b8">Node.js | TypeScript | Clean Architecture</text>
+  <text x="460" y="66" text-anchor="middle" font-size="13" fill="#94a3b8">.NET 8 | C# | Clean Architecture</text>
 
   <!-- Runtime -->
   <g filter="url(#shadow)">
     <rect x="60" y="90" width="800" height="72" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2"/>
     <text x="90" y="118" font-size="12" font-weight="700" fill="#64748b">RUNTIME</text>
-    <rect x="90" y="128" width="120" height="28" rx="6" fill="#339933"/>
-    <text x="150" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">Node.js 20+</text>
-    <rect x="230" y="128" width="130" height="28" rx="6" fill="#3178c6"/>
-    <text x="295" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">TypeScript 5.7</text>
-    <rect x="380" y="128" width="90" height="28" rx="6" fill="#64748b"/>
-    <text x="425" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">tsx</text>
-    <text x="500" y="147" font-size="11" fill="#94a3b8">Hot reload en desarrollo</text>
+    <rect x="90" y="128" width="120" height="28" rx="6" fill="#512bd4"/>
+    <text x="150" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">.NET 8</text>
+    <rect x="230" y="128" width="90" height="28" rx="6" fill="#64748b"/>
+    <text x="275" y="147" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">C# 12</text>
+    <text x="350" y="147" font-size="11" fill="#94a3b8">ASP.NET Core + Worker Service</text>
   </g>
 
   <!-- Apps -->
   <g filter="url(#shadow)">
     <rect x="60" y="180" width="390" height="120" rx="12" fill="#1e293b" stroke="#2563eb" stroke-width="2"/>
     <text x="90" y="208" font-size="12" font-weight="700" fill="#60a5fa">API REST</text>
-    <rect x="90" y="220" width="100" height="32" rx="6" fill="#000"/>
-    <text x="140" y="241" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Express 4</text>
-    <rect x="200" y="220" width="80" height="32" rx="6" fill="#334155"/>
-    <text x="240" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">CORS</text>
-    <rect x="290" y="220" width="140" height="32" rx="6" fill="#334155"/>
-    <text x="360" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">Puerto 4000</text>
+    <rect x="90" y="220" width="140" height="32" rx="6" fill="#512bd4"/>
+    <text x="160" y="241" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">Minimal APIs</text>
+    <rect x="240" y="220" width="80" height="32" rx="6" fill="#334155"/>
+    <text x="280" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">CORS</text>
+    <rect x="330" y="220" width="100" height="32" rx="6" fill="#334155"/>
+    <text x="380" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">Puerto 4000</text>
     <text x="90" y="278" font-size="10" fill="#94a3b8">CRUD sincrono | delega a use cases</text>
   </g>
   <g filter="url(#shadow)">
     <rect x="470" y="180" width="390" height="120" rx="12" fill="#1e293b" stroke="#059669" stroke-width="2"/>
     <text x="500" y="208" font-size="12" font-weight="700" fill="#34d399">WORKER</text>
     <rect x="500" y="220" width="120" height="32" rx="6" fill="#334155"/>
-    <text x="560" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">node-cron 3</text>
+    <text x="560" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">NCrontab</text>
     <rect x="630" y="220" width="200" height="32" rx="6" fill="#334155"/>
     <text x="730" y="241" text-anchor="middle" font-size="11" fill="#e2e8f0">CRON_SCHEDULE (diario)</text>
     <text x="500" y="278" font-size="10" fill="#94a3b8">Overdue + Reminders en secuencia</text>
   </g>
 
-  <!-- Packages -->
+  <!-- Projects -->
   <g filter="url(#shadow)">
     <rect x="60" y="320" width="800" height="130" rx="12" fill="#1e293b" stroke="#7c3aed" stroke-width="2"/>
-    <text x="90" y="348" font-size="12" font-weight="700" fill="#a78bfa">PACKAGES (Clean Architecture)</text>
+    <text x="90" y="348" font-size="12" font-weight="700" fill="#a78bfa">PROYECTOS (Clean Architecture)</text>
     <rect x="90" y="362" width="110" height="36" rx="6" fill="#7c3aed"/>
-    <text x="145" y="385" text-anchor="middle" font-size="10" fill="#fff">domain</text>
+    <text x="145" y="385" text-anchor="middle" font-size="10" fill="#fff">Domain</text>
     <rect x="210" y="362" width="130" height="36" rx="6" fill="#059669"/>
-    <text x="275" y="385" text-anchor="middle" font-size="10" fill="#fff">application</text>
+    <text x="275" y="385" text-anchor="middle" font-size="10" fill="#fff">Application</text>
     <rect x="350" y="362" width="140" height="36" rx="6" fill="#ea580c"/>
-    <text x="420" y="385" text-anchor="middle" font-size="10" fill="#fff">infrastructure</text>
+    <text x="420" y="385" text-anchor="middle" font-size="10" fill="#fff">Infrastructure</text>
     <rect x="500" y="362" width="90" height="36" rx="6" fill="#64748b"/>
-    <text x="545" y="385" text-anchor="middle" font-size="10" fill="#fff">shared</text>
-    <rect x="90" y="410" width="110" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
-    <text x="145" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">Mongoose 8</text>
-    <rect x="210" y="410" width="110" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
-    <text x="265" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">Nodemailer</text>
-    <rect x="330" y="410" width="80" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
-    <text x="370" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">Pino 9</text>
-    <rect x="420" y="410" width="80" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
-    <text x="460" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">Jest</text>
-    <text x="530" y="429" font-size="10" fill="#94a3b8">DI manual createContainer()</text>
+    <text x="545" y="385" text-anchor="middle" font-size="10" fill="#fff">Shared</text>
+    <rect x="90" y="410" width="120" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
+    <text x="150" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">MongoDB.Driver</text>
+    <rect x="220" y="410" width="110" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
+    <text x="275" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">MailKit</text>
+    <rect x="340" y="410" width="80" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
+    <text x="380" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">Serilog</text>
+    <rect x="430" y="410" width="80" height="28" rx="6" fill="#14532d" stroke="#22c55e"/>
+    <text x="470" y="429" text-anchor="middle" font-size="10" fill="#bbf7d0">xUnit</text>
+    <text x="530" y="429" font-size="10" fill="#94a3b8">AddMonolegalInfrastructure()</text>
   </g>
 </svg>

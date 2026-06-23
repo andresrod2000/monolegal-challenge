@@ -45,7 +45,7 @@
     <rect x="330" y="230" width="120" height="44" rx="8" fill="#ffffff22" stroke="#ffffff55"/>
     <text x="390" y="257" text-anchor="middle" font-size="12" fill="#fff">Next.js Dashboard</text>
     <rect x="470" y="230" width="120" height="44" rx="8" fill="#ffffff22" stroke="#ffffff55"/>
-    <text x="530" y="257" text-anchor="middle" font-size="12" fill="#fff">Express API</text>
+    <text x="530" y="257" text-anchor="middle" font-size="12" fill="#fff">ASP.NET API</text>
     <rect x="400" y="290" width="120" height="44" rx="8" fill="#ffffff22" stroke="#ffffff55"/>
     <text x="460" y="317" text-anchor="middle" font-size="12" fill="#fff">Worker Cron</text>
   </g>

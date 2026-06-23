@@ -19,7 +19,7 @@
     <rect x="130" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
     <text x="220" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Next.js Dashboard</text>
     <rect x="360" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
-    <text x="450" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Express REST API</text>
+    <text x="450" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">ASP.NET Core API</text>
     <rect x="590" y="118" width="180" height="38" rx="8" fill="#fff" stroke="#93c5fd"/>
     <text x="680" y="142" text-anchor="middle" font-size="12" fill="#1e3a8a">Worker Cron</text>
   </g>
@@ -62,9 +62,9 @@
     <rect x="290" y="522" width="150" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
     <text x="365" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Gmail / Mock Email</text>
     <rect x="460" y="522" width="120" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
-    <text x="520" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Pino Logger</text>
+    <text x="520" y="547" text-anchor="middle" font-size="11" fill="#9a3412">Serilog Logger</text>
     <rect x="600" y="522" width="180" height="40" rx="8" fill="#fff" stroke="#fdba74"/>
-    <text x="690" y="547" text-anchor="middle" font-size="11" fill="#9a3412">DI Container (createContainer)</text>
+    <text x="690" y="547" text-anchor="middle" font-size="11" fill="#9a3412">DI (AddMonolegalInfrastructure)</text>
   </g>
 
   <!-- Dependency arrows -->

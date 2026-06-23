@@ -37,20 +37,20 @@ Criterios de evaluación: **Clean Code**, **SOLID**, **Unit Test**, **documentac
 
 ### 0.2 Trazabilidad requisito → implementación
 
-| Requisito                                            | Componente                                        | Archivo clave                                                    | Sección / diagrama                                     |
-| ---------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------ |
-| Conexión MongoDB                                     | `MongoInvoiceRepository`, `MongoClientRepository` | `packages/infrastructure/src/persistence/`                       | §5                                                     |
-| Extraer facturas por estado                          | `findByStatus(REMINDER_STATUSES)`                 | `packages/application/src/process-invoice-reminders.use-case.ts` | §3.3, [flujo](docs/diagrams/06-flujo-recordatorio.png) |
-| Validar `primerrecordatorio` / `segundorecordatorio` | Entidad `Invoice` + enum compartido               | `packages/domain/src/entities/invoice.ts`                        | §3.2, [estados](docs/diagrams/03-maquina-estados.png)  |
-| Email según estado                                   | `buildReminderPayload()` + `IEmailProvider`       | `packages/domain/src/entities/invoice.ts`                        | §6                                                     |
-| Actualizar estado tras email                         | `processInvoice()` → `updateStatus`               | `packages/application/src/process-invoice-reminders.use-case.ts` | §6.1, ADR-05                                           |
-| 3 clientes                                           | Seed fijo                                         | `scripts/seed.ts`                                                | §5.3                                                   |
-| Resumen de facturas en UI                            | `GetInvoicesSummaryUseCase` + dashboard           | `apps/frontend/src/app/page.tsx`                                 | §4, [frontend](docs/diagrams/05-stack-frontend.png)    |
-| Clean Code / SOLID                                   | Capas separadas, un use case por acción           | `packages/domain/`, `packages/application/`                      | §2                                                     |
-| Unit Test                                            | Jest con mocks de ports                           | `packages/**/__tests__/`                                         | §8                                                     |
-| Inyección de dependencias                            | `createContainer()` + constructor injection       | `packages/infrastructure/src/di/container.ts`                    | §7                                                     |
-| Documentación y arquitectura                         | Este documento                                    | `ARCHITECTURE.md`                                                | Todo el documento                                      |
-| Stack backend / frontend                             | Node, Express, Next.js, React, etc.               | `apps/*/package.json`                                            | §1.3, ADR-13 a ADR-16                                  |
+| Requisito                                            | Componente                                        | Archivo clave                                                                 | Sección / diagrama                                     |
+| ---------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Conexión MongoDB                                     | `MongoInvoiceRepository`, `MongoClientRepository` | `backend/dotnet/src/Monolegal.Infrastructure/Persistence/`                      | §5                                                     |
+| Extraer facturas por estado                          | `FindByStatusAsync(REMINDER_STATUSES)`            | `backend/dotnet/src/Monolegal.Application/ProcessInvoiceRemindersUseCase.cs`    | §3.3, [flujo](docs/diagrams/06-flujo-recordatorio.png) |
+| Validar `primerrecordatorio` / `segundorecordatorio` | Entidad `Invoice` + enum compartido               | `backend/dotnet/src/Monolegal.Domain/Entities/Invoice.cs`                     | §3.2, [estados](docs/diagrams/03-maquina-estados.png)  |
+| Email según estado                                   | `BuildReminderPayload()` + `IEmailProvider`       | `backend/dotnet/src/Monolegal.Domain/Entities/Invoice.cs`                     | §6                                                     |
+| Actualizar estado tras email                         | `ProcessInvoiceAsync()` → `UpdateStatusAsync`     | `backend/dotnet/src/Monolegal.Application/ProcessInvoiceRemindersUseCase.cs`    | §6.1, ADR-05                                           |
+| 3 clientes                                           | Seed fijo                                         | `backend/dotnet/src/Monolegal.Seed/Program.cs`                                | §5.3                                                   |
+| Resumen de facturas en UI                            | `GetInvoicesSummaryUseCase` + dashboard           | `apps/frontend/src/app/page.tsx`                                              | §4, [frontend](docs/diagrams/05-stack-frontend.png)    |
+| Clean Code / SOLID                                   | Capas separadas, un use case por acción           | `backend/dotnet/src/Monolegal.Domain/`, `Monolegal.Application/`              | §2                                                     |
+| Unit Test                                            | xUnit + Moq con mocks de ports                    | `backend/dotnet/tests/`                                                       | §8                                                     |
+| Inyección de dependencias                            | `AddMonolegalInfrastructure()` + constructor DI   | `backend/dotnet/src/Monolegal.Infrastructure/DependencyInjection.cs`          | §7                                                     |
+| Documentación y arquitectura                         | Este documento                                    | `ARCHITECTURE.md`                                                             | Todo el documento                                      |
+| Stack backend / frontend                             | .NET 8, Next.js, React, etc.                      | `backend/dotnet/`, `apps/frontend/package.json`                                 | §1.3, ADR-13 a ADR-17                                  |
 
 ---
 
@@ -76,20 +76,18 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 #### Backend & Worker
 
-![Stack backend — Node.js, Express, packages y adaptadores](docs/diagrams/04-stack-backend.png)
+![Stack backend — .NET 8, ASP.NET Core, proyectos y adaptadores](docs/diagrams/04-stack-backend.png)
 
-| Tecnología     | Versión | Rol                  | Por qué esta elección                                                              | Alternativa descartada                                           |
-| -------------- | ------- | -------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| **Node.js**    | ≥ 20    | Runtime (frontend)   | Migrado a .NET 8 para API y Worker                                                 |
-| **.NET**       | 8.0     | Backend API + Worker | ASP.NET Core + Worker Service + xUnit                                              |
-| **TypeScript** | 5.7     | Lenguaje (frontend)  | Tipado estático en capas frontend                                                  |
-| **Express**    | —       | —                    | Reemplazado por ASP.NET Core Minimal APIs                                          |
-| **Mongoose**   | 8.9     | ODM MongoDB          | Schemas, validación e índices declarativos; aggregation `$lookup` para summaries   | Driver nativo (más boilerplate); Prisma (soporte Mongo limitado) |
-| **Nodemailer** | 6.9     | Email SMTP           | Estándar de facto para Gmail SMTP en Node; integración simple con `IEmailProvider` | SendGrid SDK (requerimiento del reto: Gmail propio)              |
-| **Pino**       | 9.6     | Logging              | JSON nativo, alto rendimiento, bajo overhead en worker cron                        | Winston (más lento); console.log (no estructurado)               |
-| **node-cron**  | 3.0     | Scheduler            | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                           | BullMQ (requiere Redis, overkill para 1 job/día)                 |
-| **tsx**        | 4.19    | Dev runner           | Hot reload en API/worker sin compilar en cada cambio                               | nodemon + tsc (más lento)                                        |
-| **Jest**       | —       | —                    | Reemplazado por xUnit + Moq en backend .NET                                        |
+| Tecnología            | Versión | Rol                  | Por qué esta elección                                                              | Alternativa descartada                                           |
+| --------------------- | ------- | -------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **.NET**              | 8.0     | Backend API + Worker | ASP.NET Core Minimal APIs, Worker Service nativo, ecosistema maduro para DI y tests | Node/Express (migrado; ver ADR-17)                               |
+| **C#**                | 12      | Lenguaje backend     | Tipado fuerte, records para entidades, async/await nativo                          | TypeScript en backend (reemplazado en migración)                 |
+| **MongoDB.Driver**    | 2.x     | Persistencia MongoDB | Driver oficial; aggregation `$lookup` para summaries; sin capa ODM extra           | Mongoose (Node, descartado en migración); Prisma (soporte Mongo limitado) |
+| **MailKit + MimeKit** | 4.x     | Email SMTP           | Estándar en .NET para Gmail SMTP; integración simple con `IEmailProvider`          | SendGrid SDK (requerimiento del reto: Gmail propio)              |
+| **Serilog**           | 4.x     | Logging              | JSON estructurado, sinks configurables, bajo overhead en worker cron               | console.log (no estructurado)                                    |
+| **NCrontab**          | 3.x     | Scheduler            | Cron diario expresivo (`CRON_SCHEDULE`); sin infra extra                           | BullMQ (requiere Redis, overkill para 1 job/día)                 |
+| **xUnit + Moq**       | —       | Tests backend        | Estándar en .NET; mocks de ports sin contenedor real                               | Jest (stack Node anterior)                                         |
+| **Node.js**           | ≥ 20    | Runtime (frontend)   | Solo para Next.js, scripts de diagramas y tooling npm en raíz                      | —                                                                |
 
 #### Frontend
 
@@ -110,24 +108,24 @@ Decisiones explícitas sobre cada tecnología del stack, con alternativas descar
 
 ## 2. Clean Architecture — Capas y responsabilidades
 
-### 2.1 Por qué Clean Architecture en monorepo npm
+### 2.1 Por qué Clean Architecture en monorepo híbrido
 
-| Aspecto                      | Detalle                                                                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Problema**                 | El reto mezcla persistencia, email, reglas de negocio y UI. Acoplar todo en un solo módulo dificulta tests, evolución y evaluación de SOLID.            |
-| **Decisión**                 | Monorepo con 4 packages (`shared`, `domain`, `application`, `infrastructure`) y 3 apps (`api`, `worker`, `frontend`) con dependencias unidireccionales. |
-| **Alternativas descartadas** | NestJS monolítico (más framework que lógica de negocio); multi-repo (fricción al compartir enums y tipos).                                              |
-| **Consecuencia**             | Cada capa testeable de forma aislada; worker y API comparten casos de uso sin duplicar lógica.                                                          |
+| Aspecto                      | Detalle                                                                                                                                                                      |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Problema**                 | El reto mezcla persistencia, email, reglas de negocio y UI. Acoplar todo en un solo módulo dificulta tests, evolución y evaluación de SOLID.                                 |
+| **Decisión**                 | Monorepo con solución .NET (`Shared`, `Domain`, `Application`, `Infrastructure`, `Api`, `Worker`, `Seed`) + frontend Next.js, con dependencias unidireccionales entre capas. |
+| **Alternativas descartadas** | NestJS monolítico (más framework que lógica de negocio); multi-repo (fricción al compartir enums y tipos).                                                                   |
+| **Consecuencia**             | Cada capa testeable de forma aislada; worker y API comparten casos de uso sin duplicar lógica.                                                                               |
 
 ### 2.2 Domain (Dominio)
 
-**Ubicación:** `packages/domain`
+**Ubicación:** `backend/dotnet/src/Monolegal.Domain`
 
 Contiene las reglas de negocio puras, independientes de frameworks y bases de datos.
 
 - **Entidades:** `Client` (id, name, email) e `Invoice` (clientId, invoiceNumber, concept, amount, dueDate, status).
 - **Ports (interfaces):** `IClientRepository`, `IInvoiceRepository`, `IEmailProvider`, `ILogger`, `IInvoiceSeeder`.
-- **Errores de dominio:** `InvoiceTransitionError`, `ClientNotFoundError`, etc.
+- **Errores de dominio:** `InvoiceTransitionError`, `ClientNotFoundError`, etc. (en `Errors/DomainErrors.cs`).
 
 **Regla de dependencia:** el dominio no importa nada de capas externas.
 
@@ -135,7 +133,7 @@ Contiene las reglas de negocio puras, independientes de frameworks y bases de da
 
 ### 2.3 Application (Casos de uso)
 
-**Ubicación:** `packages/application`
+**Ubicación:** `backend/dotnet/src/Monolegal.Application`
 
 Orquesta la lógica de negocio aplicando el **Principio de Responsabilidad Única (SRP)** — un caso de uso por acción de negocio:
 
@@ -153,26 +151,26 @@ Reciben dependencias **por inyección** (constructor), nunca instancian adaptado
 
 ### 2.4 Infrastructure (Infraestructura)
 
-**Ubicación:** `packages/infrastructure`
+**Ubicación:** `backend/dotnet/src/Monolegal.Infrastructure`
 
 Implementaciones concretas de los ports:
 
 - `MongoClientRepository` — persistencia de clientes en MongoDB
 - `MongoInvoiceRepository` — persistencia de facturas con CRUD y aggregation `$lookup`
-- `GmailEmailProvider` — envío vía SMTP (Nodemailer + Gmail)
+- `GmailEmailProvider` — envío vía SMTP (MailKit + Gmail)
 - `MockEmailProvider` — simulación para tests y desarrollo
-- `PinoLogger` — logs estructurados JSON
-- `Container` — composición root (DI manual)
+- `SerilogLoggerAdapter` — logs estructurados JSON
+- `DependencyInjection` — composition root (`AddMonolegalInfrastructure`)
 
 ### 2.5 Presentation (Presentación)
 
-**Ubicación:** `apps/api`, `apps/worker`, `apps/frontend`
+**Ubicación:** `backend/dotnet/src/Monolegal.Api`, `Monolegal.Worker`, `apps/frontend`
 
-| App                                    | Responsabilidad                                        | Qué NO hace                                                    |
-| -------------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------- |
-| **API** (`apps/api/src/routes/`)       | Enrutar HTTP, mapear DTOs, delegar a casos de uso      | No contiene reglas de negocio ni accede a MongoDB directamente |
-| **Worker** (`apps/worker/src/main.ts`) | Programar cron, ejecutar casos de uso de procesamiento | No expone endpoints HTTP                                       |
-| **Frontend** (`apps/frontend/`)        | UI, hooks de datos, proxy BFF hacia la API             | No contiene lógica de transición de estados ni envío de email  |
+| App                                              | Responsabilidad                                        | Qué NO hace                                                    |
+| ------------------------------------------------ | ------------------------------------------------------ | -------------------------------------------------------------- |
+| **API** (`Monolegal.Api/Program.cs`)             | Enrutar HTTP, mapear DTOs, delegar a casos de uso      | No contiene reglas de negocio ni accede a MongoDB directamente |
+| **Worker** (`Monolegal.Worker/Program.cs`)       | Programar cron, ejecutar casos de uso de procesamiento | No expone endpoints HTTP                                       |
+| **Frontend** (`apps/frontend/`)                  | UI, hooks de datos, proxy BFF hacia la API             | No contiene lógica de transición de estados ni envío de email  |
 
 ### 2.6 Ports & Adapters (Hexagonal)
 
@@ -190,13 +188,13 @@ El dominio define **ports** (contratos); la infraestructura provee **adapters** 
 | **OCP**   | Nuevos proveedores de email vía `IEmailProvider`; nuevos repositorios implementando ports sin cambiar casos de uso             |
 | **LSP**   | `MockEmailProvider` y `GmailEmailProvider` son intercambiables bajo `IEmailProvider`                                           |
 | **ISP**   | API depende de `ApiDependencies` (solo use cases necesarios); `InvoiceSummary` es read model enriquecido con datos del cliente |
-| **DIP**   | Application depende de ports en domain; casos de uso nunca importan Mongoose ni Nodemailer                                     |
+| **DIP**   | Application depende de ports en domain; casos de uso nunca importan MongoDB.Driver ni MailKit                                  |
 
 ### 2.8 Dependencias entre paquetes
 
 ![Dependencias entre paquetes del monorepo](docs/diagrams/12-monorepo-deps.png)
 
-`domain` no importa `application` ni `infrastructure`. Los ports viven en `packages/domain`.
+`Monolegal.Domain` no referencia `Monolegal.Application` ni `Monolegal.Infrastructure`. Los ports viven en `Monolegal.Domain/Ports/`.
 
 ---
 
@@ -236,11 +234,11 @@ El envío de correos es una operación **lenta e impredecible** (latencia de red
 
 **Regla de vencimiento:** una factura en `al_dia` pasa a `primerrecordatorio` desde el día siguiente al vencimiento (`dueDate` estrictamente anterior a hoy). El día del vencimiento sigue en `al_dia`.
 
-La lógica vive en la entidad `Invoice` (`isOverdueAt`, `shouldTransitionToFirstReminder`, `buildReminderPayload`) y se orquesta con los casos de uso.
+La lógica vive en la entidad `Invoice` (`IsOverdueAt`, `ShouldTransitionToFirstReminder`, `BuildReminderPayload`) y se orquesta con los casos de uso.
 
 ### 3.3 Secuencia detallada — una factura
 
-Flujo interno de `ProcessInvoiceRemindersUseCase.processInvoice()`:
+Flujo interno de `ProcessInvoiceRemindersUseCase.ProcessInvoiceAsync()`:
 
 ![Flujo de recordatorio — una factura](docs/diagrams/06-flujo-recordatorio.png)
 
@@ -254,9 +252,9 @@ Flujo interno de `ProcessInvoiceRemindersUseCase.processInvoice()`:
 El dashboard permite ejecutar recordatorios on-demand (botón global o por factura). El flujo sigue el patrón BFF descrito en §4:
 
 1. **Dashboard** → `POST /api/reminders/process/:invoiceId` (Route Handler Next.js)
-2. **Next.js proxy** → reenvía a Express con `API_URL`
-3. **Express** → `ProcessInvoiceRemindersUseCase.executeForInvoiceId()`
-4. Mismo flujo que §3.3: email → `updateStatus` → respuesta JSON → refetch de facturas en UI
+2. **Next.js proxy** → reenvía a la API .NET con `API_URL`
+3. **ASP.NET Core** → `ProcessInvoiceRemindersUseCase.ExecuteForInvoiceIdAsync()`
+4. Mismo flujo que §3.3: email → `UpdateStatusAsync` → respuesta JSON → refetch de facturas en UI
 
 **Por qué exponer recordatorios manuales además del cron:** facilita demostración y pruebas del reto sin esperar la ejecución programada del worker.
 
@@ -266,11 +264,11 @@ El dashboard permite ejecutar recordatorios on-demand (botón global o por factu
 
 ### 4.1 Arquitectura BFF / Proxy
 
-El frontend Next.js no llama a Express directamente desde el navegador. Usa **Route Handlers** como proxy server-side (ver diagrama en §1.3):
+El frontend Next.js no llama a la API .NET directamente desde el navegador. Usa **Route Handlers** como proxy server-side (ver diagrama en §1.3):
 
-![Arquitectura BFF — proxy Next.js hacia Express](docs/diagrams/05-stack-frontend.png)
+![Arquitectura BFF — proxy Next.js hacia API .NET](docs/diagrams/05-stack-frontend.png)
 
-**Por qué proxy Next.js en lugar de llamar Express directamente:**
+**Por qué proxy Next.js en lugar de llamar la API directamente:**
 
 | Razón             | Detalle                                                                                                 |
 | ----------------- | ------------------------------------------------------------------------------------------------------- |
@@ -325,11 +323,11 @@ El dashboard muestra:
 | Compuesto | `{ status, dueDate }`  | `findByStatusAndDueDateBefore` para vencidas |
 | Unique    | `invoiceNumber`        | Evitar duplicados                            |
 
-**Por qué Mongoose vs driver nativo:** schemas declarativos, validación en persistencia e índices en el schema — menor boilerplate para un reto con pocas entidades. El driver nativo ofrecería más control pero a costa de código repetitivo de validación.
+**Por qué MongoDB.Driver vs ODM:** el driver oficial ofrece control directo sobre colecciones, índices y aggregation pipelines con menos capas intermedias. Los índices se crean en `MongoDbConnection` al arrancar la aplicación.
 
 ### 5.3 Seed — 3 clientes
 
-El script `scripts/seed.ts` inserta exactamente **3 clientes** fijos:
+El proyecto `Monolegal.Seed` (`npm run seed`) inserta exactamente **3 clientes** fijos:
 
 | ID                   | Nombre          | Email                    |
 | -------------------- | --------------- | ------------------------ |
@@ -347,7 +345,7 @@ Más **15 facturas** aleatorias distribuidas entre los 3 clientes, con estado de
 
 ### 6.1 Integración Gmail SMTP
 
-- **Librería:** Nodemailer
+- **Librería:** MailKit + MimeKit
 - **Transport:** `smtp.gmail.com:587` (STARTTLS)
 - **Autenticación:** contraseña de aplicación de Google (requiere 2FA)
 - **Alternancia:** variable `EMAIL_PROVIDER=mock|gmail`
@@ -366,7 +364,7 @@ El worker procesa cada factura en este orden:
 
 **Justificación:** no se avanza el estado si el envío de correo falla. El cliente no debe recibir un segundo recordatorio sin haber recibido el primero.
 
-**Escenario de fallo documentado:** si el email se envía correctamente pero `updateStatus` falla (p. ej. caída de DB), la factura permanece en el estado anterior y un reintento podría enviar un email duplicado. El caso de uso registra un `warn` con `emailAlreadySent: true` para facilitar la detección operativa.
+**Escenario de fallo documentado:** si el email se envía correctamente pero `UpdateStatusAsync` falla (p. ej. caída de DB), la factura permanece en el estado anterior y un reintento podría enviar un email duplicado. El caso de uso registra un `warn` con `emailAlreadySent: true` para facilitar la detección operativa.
 
 **Trade-off aceptado:** no se implementa outbox ni cola persistente — fuera del alcance del reto. En producción se resolvería con patrón Outbox o idempotency keys.
 
@@ -374,26 +372,25 @@ El worker procesa cada factura en este orden:
 
 ## 7. Inyección de dependencias
 
-DI **manual** mediante factory en `packages/infrastructure/src/di/container.ts`:
+DI mediante `Microsoft.Extensions.DependencyInjection` en `backend/dotnet/src/Monolegal.Infrastructure/DependencyInjection.cs`:
 
-![Composition root — createContainer y toApiDependencies](docs/diagrams/10-composition-root.png)
+![Composition root — AddMonolegalInfrastructure y ApiDependencies](docs/diagrams/10-composition-root.png)
 
-**Por qué DI manual vs Inversify/TSyringe:** el grafo de dependencias es pequeño (~15 use cases). Una factory explícita es más legible para evaluación del reto y cumple el mismo **DIP** — casos de uso dependen de abstracciones, nunca de implementaciones concretas.
+**Por qué DI con `IServiceCollection` sin contenedor de terceros:** el grafo de dependencias es pequeño (~15 use cases). `AddMonolegalInfrastructure()` es explícito y legible para evaluación del reto; cumple el mismo **DIP** — casos de uso dependen de abstracciones, nunca de implementaciones concretas.
 
-**Interface Segregation (ISP):** la API recibe `ApiDependencies` con solo los use cases que necesita, no el container completo ni repositorios directamente:
+**Interface Segregation (ISP):** la API recibe `ApiDependencies` con solo los use cases que necesita, no el service provider completo ni repositorios directamente:
 
-```typescript
-// packages/infrastructure/src/di/container.types.ts
-export function toApiDependencies(container: Container): ApiDependencies {
-  return {
-    logger: container.logger,
-    getInvoicesSummaryUseCase: container.getInvoicesSummaryUseCase,
+```csharp
+// backend/dotnet/src/Monolegal.Infrastructure/DependencyInjection.cs
+services.AddSingleton(sp => new ApiDependencies
+{
+    Logger = sp.GetRequiredService<ILogger>(),
+    GetInvoicesSummaryUseCase = sp.GetRequiredService<GetInvoicesSummaryUseCase>(),
     // ... solo use cases expuestos a la API
-  };
-}
+});
 ```
 
-El worker usa el container completo incluyendo `ProcessInvoiceRemindersUseCase` y `ProcessOverdueInvoicesUseCase`.
+El worker resuelve `ProcessInvoiceRemindersUseCase` y `ProcessOverdueInvoicesUseCase` directamente del contenedor.
 
 **Por qué constructor injection:** facilita testing — cada test instancia el use case con mocks de ports inyectados en el constructor, sin contenedor ni reflexión.
 
@@ -407,27 +404,28 @@ El worker usa el container completo incluyendo `ProcessInvoiceRemindersUseCase` 
 
 ### 8.2 Cobertura por paquete
 
-| Paquete                   | Archivos de test                    | Qué se valida                                                       |
-| ------------------------- | ----------------------------------- | ------------------------------------------------------------------- |
-| `packages/domain`         | `client.test.ts`, `invoice.test.ts` | Validación de entidades, transiciones de estado, templates de email |
-| `packages/application`    | 14 archivos `.test.ts`              | Orquestación de use cases con mocks de ports                        |
-| `packages/shared`         | `dummy-invoice-data.test.ts`        | Utilidades de fechas y generación de datos                          |
-| `packages/infrastructure` | —                                   | Adaptadores validados manualmente vía seed + DEPLOYMENT             |
-| `apps/*`                  | —                                   | Sin tests; delegan a use cases ya testeados                         |
+| Paquete / proyecto              | Archivos de test                         | Qué se valida                                                       |
+| ------------------------------- | ---------------------------------------- | ------------------------------------------------------------------- |
+| `Monolegal.Domain.Tests`        | `DomainEntityTests.cs`                   | Validación de entidades, transiciones de estado, templates de email |
+| `Monolegal.Application.Tests`   | `ApplicationUseCaseTests.cs`             | Orquestación de use cases con mocks de ports                        |
+| `Monolegal.Shared.Tests`        | `DummyInvoiceDataTests.cs`               | Utilidades de fechas y generación de datos                          |
+| `Monolegal.Api.Contract.Tests`  | `ApiContractTests.cs`                    | Contrato JSON de respuestas (golden files)                          |
+| `Monolegal.Infrastructure`      | —                                        | Adaptadores validados manualmente vía seed + DEPLOYMENT             |
+| `apps/frontend`                 | —                                        | Sin tests; delegan a use cases ya testeados                         |
 
-**Total: 23 archivos de test.** Casos críticos del reto:
+**Total: 4 proyectos de test, ~27 casos.** Casos críticos del reto:
 
-- `process-invoice-reminders.use-case.test.ts` — flujo email + updateStatus
-- `process-overdue-invoices.use-case.test.ts` — transición por vencimiento
-- `invoice.test.ts` — máquina de estados y contenido de emails
+- `ApplicationUseCaseTests` — flujo email + `UpdateStatusAsync`
+- `ApplicationUseCaseTests` — transición por vencimiento
+- `DomainEntityTests` — máquina de estados y contenido de emails
 
 ### 8.3 Por qué tests en domain/application y no en infrastructure
 
 | Razón                   | Detalle                                                                                            |
 | ----------------------- | -------------------------------------------------------------------------------------------------- |
 | **Lógica crítica**      | Estados, emails y orquestación viven en domain y application                                       |
-| **CI sin dependencias** | Ports mockeados permiten `npm test` sin MongoDB ni Gmail (`.github/workflows/ci.yml`)              |
-| **ROI**                 | Un test de `Invoice.buildReminderPayload()` cubre reglas de negocio que afectan a worker, API y UI |
+| **CI sin dependencias** | Ports mockeados permiten `dotnet test` sin MongoDB ni Gmail (`.github/workflows/ci.yml`)          |
+| **ROI**                 | Un test de `Invoice.BuildReminderPayload()` cubre reglas de negocio que afectan a worker, API y UI |
 
 **Trade-off documentado:** adaptadores MongoDB/Gmail se validan manualmente. Tests E2E (Playwright/Cypress) quedan fuera del alcance del reto.
 
@@ -437,7 +435,7 @@ El worker usa el container completo incluyendo `ProcessInvoiceRemindersUseCase` 
 
 ### 9.1 Observabilidad — Logs estructurados
 
-Utilizamos **Pino** para generar logs JSON en producción y formato legible en desarrollo (`pino-pretty`).
+Utilizamos **Serilog** para generar logs JSON en producción y formato legible en desarrollo.
 
 **Campos estándar:**
 
@@ -476,11 +474,10 @@ Utilizamos **Pino** para generar logs JSON en producción y formato legible en d
 
 Registro formal de decisiones con contexto, alternativas y consecuencias.
 
-### ADR-01: Clean Architecture en monorepo npm
+### ADR-01: Clean Architecture en monorepo híbrido
 
 - **Contexto:** el reto exige Clean Code, SOLID, DI y tests. Mezclar persistencia, email y UI dificulta cumplir estos criterios.
-- **Decisión:** monorepo npm con 4 packages (`shared`, `domain`, `application`, `infrastructure`) y
-  3 apps, con regla de dependencia unidireccional.
+- **Decisión:** monorepo con solución .NET (`Shared`, `Domain`, `Application`, `Infrastructure`, `Api`, `Worker`, `Seed`) y frontend Next.js, con regla de dependencia unidireccional.
 - **Alternativas consideradas:** NestJS monolítico (descartado: más framework que lógica); multi-repo (descartado: fricción con tipos compartidos).
 - **Consecuencias:** cada capa testeable de forma aislada; curva de aprendizaje inicial mayor, pero evaluable por capas.
 
@@ -488,13 +485,13 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 
 - **Contexto:** el envío de email es lento e impredecible; bloquearía peticiones HTTP del dashboard.
 - **Decisión:** dos procesos independientes — API (CRUD síncrono) y Worker (cron asíncrono).
-- **Alternativas consideradas:** procesar recordatorios en el mismo proceso Express (descartado: acopla latencia de email al CRUD); cola BullMQ (descartado: sobre-ingeniería para cron diario).
+- **Alternativas consideradas:** procesar recordatorios en el mismo proceso HTTP (descartado: acopla latencia de email al CRUD); cola BullMQ (descartado: sobre-ingeniería para cron diario).
 - **Consecuencias:** resiliencia y escalabilidad independiente; dos contenedores Docker en despliegue.
 
 ### ADR-03: Rich Domain Model en Invoice
 
 - **Contexto:** reglas de transición de estado y templates de email son lógica de negocio del reto.
-- **Decisión:** centralizar en la entidad `Invoice` (`buildReminderPayload`, `getNextStatusAfterReminder`, etc.).
+- **Decisión:** centralizar en la entidad `Invoice` (`BuildReminderPayload`, `GetNextStatusAfterReminder`, etc.).
 - **Alternativas consideradas:** Anemic Domain Model con lógica en use cases (descartado: duplicación y difícil test unitario de reglas puras).
 - **Consecuencias:** tests de dominio rápidos y expresivos; entidad más grande pero cohesiva.
 
@@ -503,7 +500,7 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 - **Contexto:** el worker ejecuta dos pasos: transición por vencimiento y envío de recordatorios.
 - **Decisión:** `ProcessOverdueInvoicesUseCase` y `ProcessInvoiceRemindersUseCase` separados.
 - **Alternativas consideradas:** un solo use case monolítico (descartado: viola SRP); lógica en el worker directamente (descartado: worker sería orquestador de infraestructura).
-- **Consecuencias:** cada paso invocable de forma independiente (API manual + cron); secuencia clara en `apps/worker/src/main.ts`.
+- **Consecuencias:** cada paso invocable de forma independiente (API manual + cron); secuencia clara en `Monolegal.Worker/Program.cs`.
 
 ### ADR-05: Email antes de updateStatus
 
@@ -512,19 +509,19 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 - **Alternativas consideradas:** actualizar primero (descartado: cliente recibiría aviso de 2do recordatorio sin haber recibido el 1ro); outbox pattern (descartado: fuera de alcance).
 - **Consecuencias:** integridad de negocio garantizada; riesgo de email duplicado si DB falla post-envío (mitigado con log `emailAlreadySent: true`).
 
-### ADR-06: DI manual sin framework
+### ADR-06: DI con Microsoft.Extensions.DependencyInjection
 
 - **Contexto:** el reto exige inyección de dependencias. El grafo es pequeño (~15 use cases).
-- **Decisión:** factory `createContainer()` + constructor injection en use cases.
-- **Alternativas consideradas:** Inversify/TSyringe (descartado: complejidad innecesaria para el alcance); service locator (descartado: oculta dependencias).
-- **Consecuencias:** código explícito y legible para evaluadores; mismo cumplimiento de DIP que un framework.
+- **Decisión:** `AddMonolegalInfrastructure()` + constructor injection en use cases + `ApiDependencies` para ISP.
+- **Alternativas consideradas:** contenedor de terceros (descartado: complejidad innecesaria para el alcance); service locator (descartado: oculta dependencias).
+- **Consecuencias:** código explícito y legible para evaluadores; mismo cumplimiento de DIP que un framework externo.
 
-### ADR-07: Mongoose como ODM
+### ADR-07: MongoDB.Driver como capa de persistencia
 
 - **Contexto:** persistencia en MongoDB con 2 entidades y consultas de aggregation.
-- **Decisión:** Mongoose con schemas, validación e índices declarativos.
-- **Alternativas consideradas:** driver nativo de MongoDB (descartado: más boilerplate de validación); Prisma (descartado: soporte MongoDB limitado en el momento del reto).
-- **Consecuencias:** schemas auto-documentados; acoplamiento a Mongoose solo en infrastructure (domain no lo conoce).
+- **Decisión:** driver oficial `MongoDB.Driver` con índices declarados en `MongoDbConnection`.
+- **Alternativas consideradas:** Mongoose/ODM (descartado: stack Node anterior); Prisma (descartado: soporte MongoDB limitado).
+- **Consecuencias:** control directo sobre colecciones e índices; acoplamiento a MongoDB solo en infrastructure (domain no lo conoce).
 
 ### ADR-08: Mock + Gmail como proveedores de email
 
@@ -536,22 +533,22 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 ### ADR-09: Next.js BFF proxy
 
 - **Contexto:** el dashboard necesita consumir la API REST sin problemas de CORS ni exponer URLs internas.
-- **Decisión:** Route Handlers en `apps/frontend/src/app/api/` que reenvían a Express server-side.
-- **Alternativas consideradas:** llamar Express directamente desde el browser (descartado: CORS y exposición de URL); GraphQL (descartado: sobre-ingeniería).
+- **Decisión:** Route Handlers en `apps/frontend/src/app/api/` que reenvían a la API .NET server-side.
+- **Alternativas consideradas:** llamar la API directamente desde el browser (descartado: CORS y exposición de URL); GraphQL (descartado: sobre-ingeniería).
 - **Consecuencias:** frontend desacoplado de la URL de la API; posibilidad de añadir auth en el BFF.
 
-### ADR-10: Pino para logs estructurados
+### ADR-10: Serilog para logs estructurados
 
 - **Contexto:** operaciones distribuidas (API + worker) requieren trazabilidad sin acoplar a un vendor de observabilidad.
-- **Decisión:** Pino con logs JSON, `correlationId` y campo `service`.
-- **Alternativas consideradas:** Winston (descartado: menor rendimiento, JSON menos nativo); console.log (descartado: no estructurado).
+- **Decisión:** Serilog con logs JSON, `correlationId` y campo `service`.
+- **Alternativas consideradas:** console.log (descartado: no estructurado); vendor propietario (descartado: acoplamiento).
 - **Consecuencias:** logs agregables en ELK/Datadog/CloudWatch sin cambios de código; bajo overhead en producción.
 
-### ADR-11: node-cron vs BullMQ
+### ADR-11: NCrontab vs BullMQ
 
 - **Contexto:** el worker ejecuta un job diario de recordatorios, no una cola de tareas compleja.
-- **Decisión:** `node-cron` con schedule configurable (`CRON_SCHEDULE`).
-- **Alternativas consideradas:** Bull/BullMQ (descartado: requiere Redis, sobre-ingeniería para cron diario); setInterval (descartado: menos expresivo para schedules).
+- **Decisión:** `NCrontab` con schedule configurable (`CRON_SCHEDULE`) en `ReminderWorker`.
+- **Alternativas consideradas:** Bull/BullMQ (descartado: requiere Redis, sobre-ingeniería para cron diario); `Timer` fijo (descartado: menos expresivo para schedules).
 - **Consecuencias:** simplicidad operativa; sin garantías de exactly-once en multi-réplica (aceptado: 1 réplica de worker).
 
 ### ADR-12: Sin autenticación en API
@@ -561,12 +558,12 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 - **Alternativas consideradas:** JWT (descartado: complejidad innecesaria para demo); API keys (descartado: gestión de secretos extra).
 - **Consecuencias:** despliegue simple; no apto para producción pública sin añadir capa de auth (ver §13).
 
-### ADR-13: Express como framework HTTP
+### ADR-13: ASP.NET Core Minimal APIs
 
 - **Contexto:** la API expone ~13 endpoints CRUD REST sin lógica de framework compleja.
-- **Decisión:** Express 4 con routers delgados.
-- **Alternativas consideradas:** NestJS (descartado: decoradores, módulos y DI propia duplican el container manual); Fastify (descartado: beneficio marginal para CRUD simple).
-- **Consecuencias:** curva de aprendizaje mínima; evaluador ve directamente use cases sin abstracciones del framework.
+- **Decisión:** ASP.NET Core 8 con Minimal APIs en `Program.cs`.
+- **Alternativas consideradas:** NestJS/Express (descartado: stack Node anterior); controllers con atributos (descartado: más verboso para CRUD delgado).
+- **Consecuencias:** curva de aprendizaje mínima en .NET; evaluador ve directamente use cases sin abstracciones del framework.
 
 ### ADR-14: Next.js 15 App Router
 
@@ -589,12 +586,20 @@ Registro formal de decisiones con contexto, alternativas y consecuencias.
 - **Alternativas consideradas:** Material UI (descartado: bundle grande); CSS puro (descartado: más lento de iterar tablas y modales).
 - **Consecuencias:** UI consistente con poco CSS custom; fácil de mantener.
 
+### ADR-17: Migración del backend a .NET 8
+
+- **Contexto:** el backend original en Node/TypeScript (Express, Mongoose, Nodemailer, Pino, Jest) cumplía el reto pero se migró para consolidar API y Worker en un stack empresarial tipado.
+- **Decisión:** reimplementar `Domain`, `Application` e `Infrastructure` en C# preservando ports, casos de uso, contrato REST y flujos de negocio.
+- **Alternativas consideradas:** mantener dual stack Node + Next (descartado: duplicidad de runtime); reescribir frontend (descartado: Next.js BFF sigue siendo adecuado).
+- **Consecuencias:** `ARCHITECTURE.md` y diagramas reflejan .NET; el frontend no cambia (sigue consumiendo el mismo JSON vía `API_URL`).
+
 ---
 
 ## 11. API REST
 
 | Método | Ruta                                | Descripción                                 |
 | ------ | ----------------------------------- | ------------------------------------------- |
+| GET    | `/health`                           | Health check (`ok`, servicio, timestamp)    |
 | GET    | `/api/clients`                      | Listar clientes                             |
 | GET    | `/api/clients/:id`                  | Detalle de cliente                          |
 | POST   | `/api/clients`                      | Crear cliente                               |

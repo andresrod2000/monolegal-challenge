@@ -25,7 +25,7 @@
   <text x="710" y="82" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">GESTION SINCRONA (Dashboard)</text>
   <g filter="url(#s)"><rect x="520" y="120" width="120" height="40" rx="8" fill="#2563eb"/><text x="580" y="145" text-anchor="middle" font-size="11" fill="#fff">Dashboard</text></g>
   <line x1="640" y1="140" x2="670" y2="140" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
-  <g filter="url(#s)"><rect x="670" y="120" width="120" height="40" rx="8" fill="#1e40af"/><text x="730" y="145" text-anchor="middle" font-size="11" fill="#fff">Express API</text></g>
+  <g filter="url(#s)"><rect x="670" y="120" width="120" height="40" rx="8" fill="#1e40af"/><text x="730" y="145" text-anchor="middle" font-size="11" fill="#fff">ASP.NET API</text></g>
   <line x1="730" y1="160" x2="730" y2="200" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
   <g filter="url(#s)"><rect x="650" y="200" width="160" height="40" rx="8" fill="#fff" stroke="#93c5fd"/><text x="730" y="225" text-anchor="middle" font-size="10" fill="#1e3a8a">CRUD Use Cases</text></g>
   <line x1="730" y1="240" x2="730" y2="280" stroke="#475569" stroke-width="2" marker-end="url(#a)"/>
